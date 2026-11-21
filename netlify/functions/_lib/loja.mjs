@@ -45,7 +45,7 @@ export const LOJA = {
   fiscal: {
     natureza_operacao: 'Venda de mercadoria',
     ncm: '09012100',          // café torrado, não descafeinado
-    cfop_dentro_estado: '5101', // 5101 = venda de produção própria (torra). Se for revenda: 5102
+    cfop_dentro_estado: '5101', // compra café cru e paga a torrefação (industrialização por encomenda): em geral 5101. Se comprasse já torrado: 5102. [CONTADOR]
     cfop_fora_estado: '6101',   // 6101 / 6102
     icms_situacao_tributaria: '102', // CSOSN 102 (Simples/MEI sem permissão de crédito)
     icms_origem: '0',
