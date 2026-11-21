@@ -1,0 +1,94 @@
+/* Admirável Café · identidade tirada das latas e posts da marca:
+   títulos condensados em mostarda (Anton), texto em Montserrat, toques em itálico clássico (Cormorant),
+   e uma cor de fundo por café: verde Frutado, azul Paraíso, terracota Doce de Leite. Visual único, cores explícitas. */
+:root{
+  --paper:#F5F3EE; --paper-2:#EAE6DD; --ink:#1F1B18; --muted:#6B635B; --espresso:#1F1B18;
+  --mustard:#EAB54A; --mustard-deep:#B9862A;
+  --olive:#72765B; --frutado:#71906F; --paraiso:#A6CAE3; --doce:#753A1D; --sky:#91D0FA; --coral:#F36E65;
+  --display:"Anton","Oswald","Impact","Arial Narrow",sans-serif;
+  --sans:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --serif:"Cormorant Garamond","Garamond","Times New Roman",serif;
+  --wrap:1240px; --ok:#3D6B47; --erro:#A3392B; --linha:rgba(31,27,24,.14);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--paper)}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
+p{margin:0}
+figure{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+section{padding-block:clamp(72px,10vw,140px)}
+:focus-visible{outline:2px solid var(--mustard);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+
+.big{font-family:var(--display);text-transform:uppercase;line-height:.9;letter-spacing:.005em;color:var(--mustard)}
+.kicker{font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase}
+.it{font-family:var(--serif);font-style:italic;font-weight:500}
+.lead{font-family:var(--serif);font-size:clamp(21px,2vw,26px);line-height:1.4}
+
+
+/* header */
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(245,243,238,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(31,27,24,.1)}
+header.site .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-block:14px}
+.logo img{height:38px;width:auto}
+header nav{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+header nav a{text-decoration:none;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;padding:6px 0;border-bottom:2px solid transparent;white-space:nowrap}
+header nav a:hover,header nav a[aria-current="page"]{border-bottom-color:var(--mustard)}
+header nav a.ev{background:var(--ink);color:var(--paper);padding:9px 16px;border:0;border-radius:2px}
+header nav a.ev[aria-current="page"],header nav a.ev:hover{background:var(--mustard);color:var(--ink)}
+@media (max-width:760px){
+  header.site .wrap{flex-direction:column;gap:10px;padding-block:12px}
+  .logo img{height:32px}
+  header nav{gap:18px;justify-content:center}
+  header nav .hide-sm{display:none}
+}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:17px 30px;border:2px solid transparent;border-radius:2px;cursor:pointer;transition:background .25s,color .25s}
+.btn.mustard{background:var(--mustard);color:var(--ink)}
+.btn.mustard:hover{background:#F3C762}
+.btn.line{border-color:currentColor;background:transparent}
+.btn.line:hover{background:rgba(255,255,255,.12)}
+.btn.ink{background:var(--ink);color:var(--paper)}
+.btn.ink:hover{background:#3A332D}
+
+/* placas de textura (fotos de evento a inserir) */
+.plate{position:relative;background:#5A3A28 center/cover no-repeat;overflow:hidden;min-height:160px;max-width:100%}
+.plate figcaption{position:absolute;left:18px;bottom:16px;right:18px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#F5EBDD}
+.plate figcaption::before{content:"Foto a inserir · ";color:var(--mustard)}
+
+/* footer */
+footer{background:var(--espresso);color:#BDB3A8;padding-block:80px 36px;font-size:14px}
+footer .top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+@media (max-width:860px){footer .top{grid-template-columns:1fr 1fr}}
+footer .flogo img{height:44px;width:auto}
+footer h4{font-size:10px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--mustard);margin:0 0 14px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+footer a{text-decoration:none}
+footer a:hover{color:#F5F3EE}
+footer .legal{margin-top:56px;padding-top:22px;border-top:1px solid #3A332D;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px}
+
+.wa{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:35;width:54px;height:54px;border-radius:50%;background:var(--mustard);color:var(--ink);display:grid;place-items:center;box-shadow:0 10px 26px rgba(31,27,24,.3)}
+.wa svg{width:24px;height:24px}
+
+/* vídeos (reels do Instagram) */
+.reels{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:900px){.reels{grid-template-columns:repeat(2,1fr)}}
+.reel{position:relative;display:block;text-decoration:none;color:#fff;aspect-ratio:9/14;overflow:hidden;background:var(--espresso);min-width:0}
+.reel img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.reel:hover img{transform:scale(1.04)}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.72) 100%)}
+.reel .play{position:absolute;top:50%;left:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(245,243,238,.92);display:grid;place-items:center;z-index:2;transition:transform .3s}
+.reel:hover .play{transform:scale(1.08)}
+.reel .play::before{content:"";border-left:18px solid var(--ink);border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+.reel .cap{position:absolute;left:16px;right:16px;bottom:16px;z-index:2}
+.reel .cap small{display:block;font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--mustard);margin-bottom:4px}
+.reel .cap b{display:block;font-size:15px;font-weight:600;line-height:1.3}
+.reel .dur{position:absolute;top:12px;right:12px;z-index:2;font-size:11px;font-weight:600;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:2px}
+.reel.empty{background:repeating-linear-gradient(135deg,#2B2622 0 12px,#332D28 12px 24px)}
+.reel.empty .cap small{color:#BDB3A8}
+.tag-tbd{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--doce);border:1px solid currentColor;padding:2px 7px;border-radius:2px;vertical-align:middle}

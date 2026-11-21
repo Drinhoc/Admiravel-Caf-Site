@@ -1,0 +1,67 @@
+<title>Prévia Admirável Café</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600;700&display=swap">
+<style>
+/* Cartão de entrada da prévia: as cores e letras do próprio site (creme, tinta, mostarda; Anton + Montserrat). */
+:root{
+  --creme:#F5F3EE; --tinta:#1F1B18; --mostarda:#EAB54A; --muted:#6B635B; --linha:#DED6CA; --cartao:#FFFFFF;
+  --display:"Anton","Impact","Arial Narrow",sans-serif; --texto:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body{background:var(--creme);color:var(--tinta);font-family:var(--texto);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 56px}
+.caixa{max-width:860px;margin:0 auto;display:grid;gap:28px}
+.selo{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(40px,8vw,72px);line-height:.95;text-wrap:balance;margin:6px 0 0}
+p{margin:0;max-width:62ch}
+.portas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.portas{grid-template-columns:1fr}}
+.porta{display:grid;gap:10px;align-content:start;text-decoration:none;color:inherit;background:var(--cartao);border-radius:16px;padding:22px;border:1.5px solid var(--linha);transition:border-color .2s,transform .2s}
+.porta:hover{border-color:var(--tinta);transform:translateY(-2px)}
+.porta:focus-visible{outline:3px solid var(--mostarda);outline-offset:3px}
+.porta.escura{background:var(--tinta);color:var(--creme);border-color:var(--tinta)}
+.porta.escura .ir{background:var(--mostarda);color:var(--tinta)}
+.porta h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:34px;line-height:1;margin:0}
+.porta p{font-size:15px;opacity:.85}
+.ir{justify-self:start;margin-top:6px;background:var(--tinta);color:var(--creme);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:12px 18px;border-radius:999px}
+.roteiro{background:var(--cartao);border-radius:16px;padding:22px;border:1.5px solid var(--linha)}
+.roteiro h3{margin:0 0 10px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.roteiro ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.nota{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.porta{transition:none}.porta:hover{transform:none}}
+</style>
+
+<main class="caixa">
+  <header>
+    <div class="selo">Prévia · modo demonstração</div>
+    <h1>Admirável Café, site próprio</h1>
+  </header>
+  <p>Esta é a loja nova funcionando sem nenhuma conta conectada. Pagamento, nota e etiqueta são simulados. O que você muda no painel aparece na loja, só neste navegador.</p>
+
+  <div class="portas">
+    <a class="porta" href="loja/index.html">
+      <div class="selo">Para o cliente</div>
+      <h2>Loja</h2>
+      <p>Cafés, combos, carrinho, frete, pagamento simulado e a página do pedido.</p>
+      <span class="ir">Abrir a loja</span>
+    </a>
+    <a class="porta escura" href="loja/painel/index.html">
+      <div class="selo" style="color:inherit;opacity:.7">Para o dono</div>
+      <h2>Painel</h2>
+      <p>Pedidos para enviar, produtos (preço, estoque, fotos, promoção), orçamentos de eventos e ajustes. Entra com o e-mail e a senha já preenchidos.</p>
+      <span class="ir">Abrir o painel</span>
+    </a>
+  </div>
+
+  <section class="roteiro">
+    <h3>Roteiro de teste em 2 minutos</h3>
+    <ol>
+      <li>Na loja, escolha um café, coloque no carrinho e finalize com CPF de teste 529.982.247-25.</li>
+      <li>Na página do pedido, toque em "Simular pagamento com Pix".</li>
+      <li>No painel, o pedido aparece em "Para enviar", com etiqueta pronta. Marque como enviado.</li>
+      <li>Em Produtos, coloque um café em promoção e volte à loja para ver o preço riscado.</li>
+    </ol>
+  </section>
+
+  <p class="nota">Algumas fotos ainda estão guardadas no Wix e não aparecem nesta prévia; no site publicado elas carregam normalmente. O site atual no Wix não foi alterado.</p>
+</main>

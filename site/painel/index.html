@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel · Admirável Café</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1F1B18">
+<link rel="icon" href="../assets/img/marca-escuro.png">
+<link rel="stylesheet" href="../assets/css/fontes.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="painel.css">
+</head>
+<body>
+<div id="demo-faixa" class="demo-faixa" hidden>Demonstração: as mudanças ficam só neste navegador e aparecem na loja de prévia. <button type="button" id="zerar-demo">Recomeçar</button></div>
+
+<!-- LOGIN -->
+<section id="tela-login" class="login" hidden>
+  <form id="form-login" class="cartao-login">
+    <img src="../assets/img/logo-escuro.png" alt="Admirável Café" width="200" height="50">
+    <h1>Painel da loja</h1>
+    <label>E-mail<input type="email" name="email" autocomplete="username" required></label>
+    <label>Senha<input type="password" name="senha" autocomplete="current-password" required></label>
+    <p class="erro" id="erro-login" role="alert"></p>
+    <button class="bt grande" type="submit">Entrar</button>
+    <button class="link" type="button" id="esqueci">Esqueci a senha</button>
+  </form>
+</section>
+
+<!-- APP -->
+<div id="app" hidden>
+  <header class="topo">
+    <img src="../assets/img/logo-claro.png" alt="Admirável Café" width="150" height="38">
+    <nav class="abas" aria-label="Seções">
+      <button data-aba="pedidos" aria-current="page"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2L5 8Zm3 0V6.5a4 4 0 0 1 8 0V8"/></svg>Pedidos<span class="bolha" id="bolha-pedidos" hidden></span></button>
+      <button data-aba="produtos"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6zM6 9h12M10 13h4"/></svg>Produtos</button>
+      <button data-aba="eventos"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M9 3v5M15 3v5"/></svg>Eventos<span class="bolha" id="bolha-eventos" hidden></span></button>
+      <button data-aba="ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Ajustes</button>
+    </nav>
+    <div class="quem"><span id="quem"></span> · <a href="../index.html" target="_blank" rel="noopener">Ver loja</a> · <button class="link" id="sair">Sair</button></div>
+  </header>
+
+  <main class="conteudo">
+    <!-- PEDIDOS -->
+    <section data-tela="pedidos">
+      <div class="cab"><h1>Pedidos</h1>
+        <div class="filtros" role="group" aria-label="Filtrar">
+          <button data-f="enviar" aria-pressed="true">Para enviar</button>
+          <button data-f="enviado" aria-pressed="false">Enviados</button>
+          <button data-f="aguardando" aria-pressed="false">Aguardando pagamento</button>
+          <button data-f="todos" aria-pressed="false">Todos</button>
+        </div>
+      </div>
+      <div id="lista-pedidos" class="lista"></div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section data-tela="produtos" hidden>
+      <div class="cab"><h1>Produtos</h1><button class="bt" id="novo-produto">+ Novo produto</button></div>
+      <p class="dica">Toque num produto para mudar preço, estoque, fotos ou colocar em promoção.</p>
+      <div id="lista-produtos" class="grade"></div>
+      <div id="importar-wix" class="caixa-info" hidden>
+        <b>Fotos ainda no Wix</b>
+        <p>Algumas fotos ainda estão guardadas no Wix. Copie todas para cá antes de cancelar o Wix.</p>
+        <button class="bt claro" id="bt-importar">Trazer fotos do Wix</button>
+      </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section data-tela="eventos" hidden>
+      <div class="cab"><h1>Pedidos de orçamento</h1></div>
+      <p class="dica">Quem preencheu o formulário da página de eventos. Toque em WhatsApp para responder.</p>
+      <div id="lista-eventos" class="lista"></div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section data-tela="ajustes" hidden>
+      <div class="cab"><h1>Ajustes</h1></div>
+      <form id="form-ajustes" class="form">
+        <label>Aviso no topo do site<input name="aviso_topo" maxlength="120" placeholder="Ex.: Frete grátis acima de R$ 150"><small>Aparece numa faixa escura no alto de todas as páginas. Deixe vazio para esconder.</small></label>
+        <label>Frete grátis (PAC) para compras a partir de<span class="moeda"><i>R$</i><input name="frete_gratis_acima" inputmode="decimal" placeholder="0"></span><small>Coloque 0 para não ter frete grátis.</small></label>
+        <button class="bt" type="submit">Salvar ajustes</button>
+      </form>
+      <div class="caixa-info" id="status-servicos"></div>
+    </section>
+  </main>
+</div>
+
+<!-- GAVETA DE DETALHE (pedido / produto) -->
+<div class="veu" id="veu"></div>
+<aside class="folha" id="folha" aria-hidden="true" role="dialog" aria-modal="true"></aside>
+<div class="aviso" id="aviso" role="status"></div>
+
+<script type="module" src="painel.js"></script>
+</body>
+</html>

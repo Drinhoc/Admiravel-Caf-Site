@@ -1,0 +1,36 @@
+# Netlify: o site estático fica em /site e as funções (API) em /netlify/functions.
+[build]
+  publish = "site"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["site/data/produtos-demo.json"]
+
+[[headers]]
+  for = "/painel/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[redirects]]
+  from = "/eventos"
+  to = "/eventos.html"
+  status = 200
+
+[[redirects]]
+  from = "/painel"
+  to = "/painel/"
+  status = 301
