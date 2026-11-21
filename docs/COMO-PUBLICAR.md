@@ -108,8 +108,8 @@ Só depois do teste aprovado e com o dono de acordo:
 - CFOP com o contador: ele compra café cru e paga uma torrefação (industrialização por encomenda, em geral 5101/6101), e se o MEI cobre essa atividade.
 - Se ele quer NF automática (Notaas) ou vender com declaração de conteúdo.
 - Faixa de CEP e preço da entrega local em Limeira (hoje: R$ 7, 1 a 4 dias úteis).
-- Itens marcados como "[capacidade a confirmar]" na página de eventos.
-- História e foto de quem criou a marca, para a seção "Quem faz a Admirável" da página Quem somos.
+- Página Quem somos: o texto "Uma paixão antiga por café brasileiro" foi escrito a partir da página Sobre do site atual; o dono revisa, completa (nome, desde quando, como começou) e manda uma foto dele.
+- Página Eventos: antecedência para reservar, cidades atendidas, capacidade (convidados por barista) e como cobra.
 - Fotos em boa resolução dos produtos e dos eventos (sobem pelo painel, em Produtos).
 
 ## Para o Drinho: rodar no computador
