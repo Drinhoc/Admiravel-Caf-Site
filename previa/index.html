@@ -1,67 +1,223 @@
 <title>Prévia Admirável Café</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@500;600;700;800&display=swap">
 <style>
-/* Cartão de entrada da prévia: as cores e letras do próprio site (creme, tinta, mostarda; Anton + Montserrat). */
+/* Roteiro de apresentação para o dono: as cores e letras do próprio site (creme, tinta, mostarda; Anton + Montserrat). Uma coluna, tarefas em sequência. */
 :root{
   --creme:#F5F3EE; --tinta:#1F1B18; --mostarda:#EAB54A; --muted:#6B635B; --linha:#DED6CA; --cartao:#FFFFFF;
+  --ok:#3D6B47; --ok-fundo:#DCEBDD; --meio:#8A6412; --meio-fundo:#F7E7C4; --ruim:#A3392B; --ruim-fundo:#F6DAD5;
   --display:"Anton","Impact","Arial Narrow",sans-serif; --texto:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
+*{box-sizing:border-box}
 body{background:var(--creme);color:var(--tinta);font-family:var(--texto);font-size:16px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 56px}
-.caixa{max-width:860px;margin:0 auto;display:grid;gap:28px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:36px 64px}
+.caixa{max-width:760px;margin:0 auto;display:grid;gap:28px}
 .selo{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(40px,8vw,72px);line-height:.95;text-wrap:balance;margin:6px 0 0}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(40px,8vw,68px);line-height:.95;text-wrap:balance;margin:6px 0 0}
+h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(26px,4.5vw,34px);line-height:1;margin:0;text-wrap:balance}
 p{margin:0;max-width:62ch}
-.portas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-@media (max-width:640px){.portas{grid-template-columns:1fr}}
-.porta{display:grid;gap:10px;align-content:start;text-decoration:none;color:inherit;background:var(--cartao);border-radius:16px;padding:22px;border:1.5px solid var(--linha);transition:border-color .2s,transform .2s}
-.porta:hover{border-color:var(--tinta);transform:translateY(-2px)}
-.porta:focus-visible{outline:3px solid var(--mostarda);outline-offset:3px}
-.porta.escura{background:var(--tinta);color:var(--creme);border-color:var(--tinta)}
-.porta.escura .ir{background:var(--mostarda);color:var(--tinta)}
-.porta h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:34px;line-height:1;margin:0}
-.porta p{font-size:15px;opacity:.85}
-.ir{justify-self:start;margin-top:6px;background:var(--tinta);color:var(--creme);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:12px 18px;border-radius:999px}
-.roteiro{background:var(--cartao);border-radius:16px;padding:22px;border:1.5px solid var(--linha)}
-.roteiro h3{margin:0 0 10px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.roteiro ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.lead{font-size:17px}
+.muda{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+@media (max-width:600px){.muda{grid-template-columns:1fr}}
+.muda li{background:var(--cartao);border:1.5px solid var(--linha);border-radius:12px;padding:14px 16px;font-size:15px}
+.muda b{display:block;font-size:15px}
+.tarefas{display:grid;gap:14px;counter-reset:t}
+.tarefa{background:var(--cartao);border:1.5px solid var(--linha);border-radius:16px;padding:20px;display:grid;gap:12px}
+.tarefa .cab{display:flex;gap:14px;align-items:flex-start}
+.tarefa .num{counter-increment:t;flex:none;width:38px;height:38px;border-radius:50%;background:var(--tinta);color:var(--mostarda);display:grid;place-items:center;font-family:var(--display);font-size:20px}
+.tarefa .num::before{content:counter(t)}
+.tarefa h3{margin:4px 0 2px;font-size:18px;font-weight:800;line-height:1.25}
+.tarefa .cab div{min-width:0}
+.ir{justify-self:start;display:inline-block;background:var(--tinta);color:var(--creme);text-decoration:none;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:12px 18px;border-radius:999px}
+.ir.ouro{background:var(--mostarda);color:var(--tinta)}
+.ir:focus-visible,.nota-op label:focus-within,button:focus-visible,textarea:focus-visible{outline:3px solid var(--mostarda);outline-offset:3px}
+.como{display:grid;gap:8px;border-top:1px solid var(--linha);padding-top:12px}
+.como legend{font-size:13px;font-weight:700;color:var(--muted);padding:0;margin-bottom:8px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.nota-op{display:flex;flex-wrap:wrap;gap:8px}
+.nota-op label{cursor:pointer}
+.nota-op input{position:absolute;opacity:0;pointer-events:none}
+.nota-op span{display:inline-block;padding:9px 14px;border-radius:999px;border:1.5px solid var(--linha);font-weight:700;font-size:14px;background:var(--creme)}
+.nota-op input:checked+span[data-v="facil"]{background:var(--ok-fundo);border-color:var(--ok);color:var(--ok)}
+.nota-op input:checked+span[data-v="meio"]{background:var(--meio-fundo);border-color:var(--meio);color:var(--meio)}
+.nota-op input:checked+span[data-v="dificil"]{background:var(--ruim-fundo);border-color:var(--ruim);color:var(--ruim)}
+textarea{font:inherit;font-size:16px;width:100%;min-height:48px;border:1.5px solid var(--linha);border-radius:10px;padding:10px 12px;background:var(--creme);color:var(--tinta);resize:vertical}
+.fim{background:var(--tinta);color:var(--creme);border-radius:16px;padding:22px;display:grid;gap:14px}
+.fim .selo{color:var(--mostarda)}
+.fim textarea{background:#2A2521;color:var(--creme);border-color:#4A423B}
+.fim .nota-op span{background:#2A2521;border-color:#4A423B;color:var(--creme)}
+.botoes{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:inherit;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;border:0;border-radius:999px;padding:14px 22px;cursor:pointer;background:var(--mostarda);color:var(--tinta)}
+button.claro{background:transparent;color:var(--creme);box-shadow:inset 0 0 0 1.5px #5A514A}
+#estado{font-size:14px;font-weight:600}
+#resumo{white-space:pre-wrap;font-size:14px;background:#2A2521;border-radius:10px;padding:14px;margin:0;max-height:260px;overflow:auto}
+.recebidas{display:grid;gap:12px}
+.resp{background:var(--cartao);border:1.5px solid var(--linha);border-radius:12px;padding:16px;font-size:15px;display:grid;gap:6px}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;margin-right:4px}
+.chip.facil{background:var(--ok-fundo);color:var(--ok)}.chip.meio{background:var(--meio-fundo);color:var(--meio)}.chip.dificil{background:var(--ruim-fundo);color:var(--ruim)}
 .nota{font-size:13px;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.porta{transition:none}.porta:hover{transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <main class="caixa">
   <header>
-    <div class="selo">Prévia · modo demonstração</div>
-    <h1>Admirável Café, site próprio</h1>
+    <div class="selo">Prévia · nada aqui é de verdade ainda</div>
+    <h1>O site novo da Admirável</h1>
   </header>
-  <p>Esta é a loja nova funcionando sem nenhuma conta conectada. Pagamento, nota e etiqueta são simulados. O que você muda no painel aparece na loja, só neste navegador.</p>
+  <p class="lead">Esta é a loja nova funcionando em modo de teste. Nenhum pagamento é cobrado e nenhuma etiqueta é comprada. Faça as tarefas abaixo como se fosse um dia normal, e no fim conte o que achou.</p>
 
-  <div class="portas">
-    <a class="porta" href="loja/index.html">
-      <div class="selo">Para o cliente</div>
-      <h2>Loja</h2>
-      <p>Cafés, combos, carrinho, frete, pagamento simulado e a página do pedido.</p>
-      <span class="ir">Abrir a loja</span>
-    </a>
-    <a class="porta escura" href="loja/painel/index.html">
-      <div class="selo" style="color:inherit;opacity:.7">Para o dono</div>
-      <h2>Painel</h2>
-      <p>Pedidos para enviar, produtos (preço, estoque, fotos, promoção), orçamentos de eventos e ajustes. Entra com o e-mail e a senha já preenchidos.</p>
-      <span class="ir">Abrir o painel</span>
-    </a>
-  </div>
-
-  <section class="roteiro">
-    <h3>Roteiro de teste em 2 minutos</h3>
-    <ol>
-      <li>Na loja, escolha um café, coloque no carrinho e finalize com CPF de teste 529.982.247-25.</li>
-      <li>Na página do pedido, toque em "Simular pagamento com Pix".</li>
-      <li>No painel, o pedido aparece em "Para enviar", com etiqueta pronta. Marque como enviado.</li>
-      <li>Em Produtos, coloque um café em promoção e volte à loja para ver o preço riscado.</li>
-    </ol>
+  <section aria-labelledby="t-muda" style="display:grid;gap:12px">
+    <h2 id="t-muda">O que muda pra você</h2>
+    <ul class="muda">
+      <li><b>Pedido novo avisa no celular</b>Chega e-mail (e Telegram, se quiser) assim que o cliente paga.</li>
+      <li><b>Etiqueta já sai pronta</b>O site compra a etiqueta no Melhor Envio sozinho. Você só imprime e posta.</li>
+      <li><b>Preço e promoção por sua conta</b>Muda preço, estoque e fotos pelo celular, sem mexer em editor de site.</li>
+      <li><b>Sem mensalidade de site</b>Você paga só a taxa do pagamento e as etiquetas.</li>
+    </ul>
   </section>
 
-  <p class="nota">Algumas fotos ainda estão guardadas no Wix e não aparecem nesta prévia; no site publicado elas carregam normalmente. O site atual no Wix não foi alterado.</p>
+  <section aria-labelledby="t-tarefas" style="display:grid;gap:14px">
+    <h2 id="t-tarefas">Teste em 4 tarefas</h2>
+    <p class="nota">Faça na ordem. Cada uma leva uns 2 minutos. Depois de cada uma, marque como foi.</p>
+    <div class="tarefas" id="tarefas"></div>
+  </section>
+
+  <section class="fim" aria-labelledby="t-fim">
+    <div class="selo">Pra terminar</div>
+    <h2 id="t-fim">O que você achou?</h2>
+    <fieldset class="como" style="border-color:#4A423B">
+      <legend style="color:#CFC6BA">O visual tem a cara da Admirável?</legend>
+      <div class="nota-op" id="op-visual"></div>
+    </fieldset>
+    <label for="geral" style="display:grid;gap:8px;font-size:13px;font-weight:700;color:#CFC6BA">O que você mudaria ou o que está faltando?
+      <textarea id="geral" rows="4" placeholder="Ex.: quero poder colocar frete grátis só pra Limeira…"></textarea></label>
+    <div class="botoes">
+      <button type="button" id="enviar">Enviar respostas</button>
+      <button type="button" class="claro" id="copiar">Copiar respostas</button>
+      <span id="estado" role="status"></span>
+    </div>
+    <pre id="resumo" hidden></pre>
+  </section>
+
+  <section id="painel-respostas" class="recebidas" hidden aria-labelledby="t-resp">
+    <h2 id="t-resp">Respostas recebidas</h2>
+    <div id="lista-respostas"></div>
+  </section>
+
+  <p class="nota">Algumas fotos ainda estão guardadas no Wix e não aparecem nesta prévia; no site publicado elas carregam normalmente. O site atual no Wix continua no ar, sem nenhuma mudança.</p>
 </main>
+
+<script>
+const TAREFAS = [
+  { id: 'compra', titulo: 'Compre um café como cliente', texto: 'Escolha um café, coloque no carrinho e finalize. Use o CPF de teste 529.982.247-25 e um CEP qualquer. Na página do pedido, toque em "Simular pagamento com Pix".', link: 'loja/index.html', botao: 'Abrir a loja', ouro: true },
+  { id: 'despachar', titulo: 'Despache o pedido no painel', texto: 'Entre no painel (e-mail e senha já vêm preenchidos). O pedido aparece em "Para enviar". Abra, veja a etiqueta e toque em "Marcar como enviado".', link: 'loja/painel/index.html#pedidos', botao: 'Abrir o painel' },
+  { id: 'promocao', titulo: 'Coloque um café em promoção', texto: 'Em Produtos, toque num café, coloque um preço promocional (pode pôr data pra acabar) e salve. Volte à loja e veja o preço riscado.', link: 'loja/painel/index.html#produtos', botao: 'Abrir produtos' },
+  { id: 'evento', titulo: 'Receba um pedido de orçamento', texto: 'Na página de Eventos, preencha o formulário como se fosse uma noiva. Depois veja o pedido na aba Eventos do painel e toque em WhatsApp.', link: 'loja/eventos.html', botao: 'Abrir Eventos' },
+];
+const NOTAS = [['facil', 'Fácil'], ['meio', 'Mais ou menos'], ['dificil', 'Difícil']];
+const VISUAL = [['facil', 'Tem sim'], ['meio', 'Quase'], ['dificil', 'Não tem']];
+const NOME_NOTA = { facil: 'fácil', meio: 'mais ou menos', dificil: 'difícil' };
+const NOME_VISUAL = { facil: 'tem a cara', meio: 'quase', dificil: 'não tem a cara' };
+const $ = (s) => document.querySelector(s);
+
+function opcoes(nome, lista) {
+  return lista.map(([v, t]) => `<label><input type="radio" name="${nome}" value="${v}" id="${nome}-${v}"><span data-v="${v}">${t}</span></label>`).join('');
+}
+$('#tarefas').innerHTML = TAREFAS.map((t) => `<article class="tarefa">
+  <div class="cab"><span class="num" aria-hidden="true"></span><div><h3>${t.titulo}</h3><p>${t.texto}</p></div></div>
+  <a class="ir${t.ouro ? ' ouro' : ''}" href="${t.link}">${t.botao}</a>
+  <fieldset class="como"><legend>Como foi?</legend>
+    <div class="nota-op">${opcoes('n-' + t.id, NOTAS)}</div>
+    <label for="c-${t.id}" class="nota">Comentário (opcional)</label>
+    <textarea id="c-${t.id}" rows="1" placeholder="O que travou ou chamou atenção?"></textarea>
+  </fieldset></article>`).join('');
+$('#op-visual').innerHTML = opcoes('visual', VISUAL);
+
+// rascunho no próprio aparelho: se fechar a página no meio, não perde o que marcou
+const CHAVE = 'adm_apresentacao_v1';
+function coletar() {
+  const r = { tarefas: {}, visual: document.querySelector('[name=visual]:checked')?.value || '', geral: $('#geral').value.trim() };
+  for (const t of TAREFAS) r.tarefas[t.id] = { nota: document.querySelector(`[name="n-${t.id}"]:checked`)?.value || '', comentario: $('#c-' + t.id).value.trim() };
+  return r;
+}
+function aplicar(r) {
+  if (!r) return;
+  for (const t of TAREFAS) {
+    const x = r.tarefas?.[t.id] || {};
+    if (x.nota) { const el = document.getElementById(`n-${t.id}-${x.nota}`); if (el) el.checked = true; }
+    $('#c-' + t.id).value = x.comentario || '';
+  }
+  if (r.visual) { const el = document.getElementById('visual-' + r.visual); if (el) el.checked = true; }
+  $('#geral').value = r.geral || '';
+}
+try { aplicar(JSON.parse(localStorage.getItem(CHAVE) || 'null')); } catch {}
+document.addEventListener('input', () => { try { localStorage.setItem(CHAVE, JSON.stringify(coletar())); } catch {} });
+document.addEventListener('change', () => { try { localStorage.setItem(CHAVE, JSON.stringify(coletar())); } catch {} });
+
+function textoResumo(r) {
+  const linhas = ['Teste do site novo da Admirável Café', ''];
+  for (const t of TAREFAS) {
+    const x = r.tarefas[t.id];
+    linhas.push(`${t.titulo}: ${NOME_NOTA[x.nota] || 'não marcou'}${x.comentario ? ' · ' + x.comentario : ''}`);
+  }
+  linhas.push('', `Visual: ${NOME_VISUAL[r.visual] || 'não marcou'}`);
+  if (r.geral) linhas.push(`O que mudaria: ${r.geral}`);
+  return linhas.join('\n');
+}
+
+let db = null, user = null, meuId = null;
+async function copiar() {
+  const txt = textoResumo(coletar());
+  const pre = $('#resumo'); pre.textContent = txt; pre.hidden = false;
+  try { await navigator.clipboard.writeText(txt); $('#estado').textContent = 'Copiado. Cole no WhatsApp do Drinho.'; }
+  catch { const s = getSelection(), rg = document.createRange(); rg.selectNodeContents(pre); s.removeAllRanges(); s.addRange(rg); $('#estado').textContent = 'Texto selecionado: copie e mande pro Drinho.'; }
+}
+$('#copiar').addEventListener('click', copiar);
+$('#enviar').addEventListener('click', async () => {
+  const r = coletar();
+  const b = $('#enviar'); b.disabled = true; $('#estado').textContent = 'Enviando…';
+  try {
+    if (!db || !meuId) throw new Error('sem-banco');
+    await db.doc('respostas/' + meuId).set({ ...r, em: new Date().toISOString() });
+    $('#estado').textContent = 'Recebido, obrigado! Pode mudar e enviar de novo quando quiser.';
+    carregarRespostas();
+  } catch {
+    $('#estado').textContent = 'Não deu pra enviar daqui.';
+    await copiar();
+  } finally { b.disabled = false; }
+});
+
+// Respostas de todo mundo: só aparece para quem publicou a página (o Drinho).
+async function carregarRespostas() {
+  if (!db || !(await user?.isOwner())) return;
+  try {
+    const snap = await db.collection('respostas').get();
+    const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (!docs.length) return;
+    const perfis = await user.profiles(docs.map((d) => d.id)).catch(() => ({}));
+    const lista = $('#lista-respostas'); lista.textContent = '';
+    for (const d of docs.sort((a, b) => String(b.em).localeCompare(String(a.em)))) {
+      const el = document.createElement('div'); el.className = 'resp';
+      const quem = document.createElement('b'); quem.textContent = (perfis[d.id]?.name || 'Alguém') + ' · ' + new Date(d.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      el.append(quem);
+      for (const t of TAREFAS) {
+        const x = d.tarefas?.[t.id] || {}; const p = document.createElement('div');
+        const c = document.createElement('span'); c.className = 'chip ' + (x.nota || ''); c.textContent = NOME_NOTA[x.nota] || '—';
+        p.append(c, document.createTextNode(t.titulo + (x.comentario ? ' · ' + x.comentario : ''))); el.append(p);
+      }
+      const v = document.createElement('div'); v.textContent = 'Visual: ' + (NOME_VISUAL[d.visual] || '—') + (d.geral ? ' · ' + d.geral : ''); el.append(v);
+      lista.append(el);
+    }
+    $('#painel-respostas').hidden = false;
+  } catch {}
+}
+
+(async () => {
+  try {
+    [db, user] = await Promise.all([window.claude?.use?.('db'), window.claude?.use?.('user')]);
+    meuId = await user?.id?.();
+    carregarRespostas();
+  } catch {}
+})();
+</script>
