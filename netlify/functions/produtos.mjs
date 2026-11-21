@@ -6,7 +6,7 @@ export default async () => {
   try {
     const [produtos, ajustes] = await Promise.all([db().listarProdutos({ ativos: true }), db().ajustes()]);
     const publico = produtos.map(({ criado_em, atualizado_em, ...p }) => p);
-    return json({ produtos: publico, ajustes: { aviso_topo: ajustes.aviso_topo || '', frete_gratis_acima: Number(ajustes.frete_gratis_acima || 0) } }, 200,
+    return json({ produtos: publico, ajustes: { aviso_topo: ajustes.aviso_topo || '', frete_gratis_acima: Number(ajustes.frete_gratis_acima || 0), destaque_id: ajustes.destaque_id || null } }, 200,
       { 'cache-control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300' });
   } catch (e) {
     console.error(e);

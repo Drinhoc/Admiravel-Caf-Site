@@ -46,6 +46,8 @@ create table if not exists ajustes (
   frete_gratis_acima numeric default 0
 );
 insert into ajustes (id) values (1) on conflict do nothing;
+-- café em destaque na página inicial (escolhido no painel)
+alter table ajustes add column if not exists destaque_id uuid references produtos(id) on delete set null;
 
 -- ---------- Pedidos ----------
 create sequence if not exists pedidos_numero_seq start 1001;

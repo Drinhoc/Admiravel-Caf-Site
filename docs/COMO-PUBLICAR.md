@@ -1,6 +1,6 @@
 # Admirável Café: o que falta para ligar o site
 
-O site está pronto e testado em modo demonstração. Falta só criar as contas abaixo, colar as chaves no Netlify e fazer um pedido de teste de verdade.
+O site está pronto e testado em modo demonstração. Falta só criar as contas abaixo, colar as chaves na hospedagem (Railway) e fazer um pedido de teste de verdade.
 
 **Regra de ouro:** o site atual no Wix (admiravelcafe.com.br) continua no ar, intocado, até o site novo passar no teste. A NF e o Mercado Envios de lá seguem funcionando. A troca de domínio é o último passo.
 
@@ -10,8 +10,8 @@ O site está pronto e testado em modo demonstração. Falta só criar as contas 
 
 | # | Conta | Para quê | Custo | Quem faz |
 |---|---|---|---|---|
-| 1 | GitHub (repositório do site) | guardar o código; o Netlify publica dele | grátis | Drinho |
-| 2 | Netlify | hospedar o site e o servidor | grátis (plano Free permite loja) | Drinho |
+| 1 | GitHub (repositório do site) | guardar o código; a hospedagem publica dele | grátis | Drinho |
+| 2 | Railway (ou Netlify) | hospedar o site e o servidor | Railway: plano Hobby, cerca de US$ 5/mês · Netlify: grátis | Drinho |
 | 3 | Supabase | banco de dados, login do painel e fotos | grátis | Drinho |
 | 4 | InfinitePay | receber Pix e cartão | Pix 0%; cartão conforme o plano da conta | dono (já tem ou abre no app) |
 | 5 | Melhor Envio | frete no carrinho e etiqueta | grátis; paga só as etiquetas (saldo na carteira) | dono |
@@ -36,13 +36,18 @@ Sem a Notaas o site já funciona: o pedido vai com **declaração de conteúdo**
 6. **Authentication → URL Configuration**: em Site URL coloque o endereço do site; em Redirect URLs adicione `https://SEU-SITE/painel/` (é para o "Esqueci a senha").
 7. **Project Settings → API**: copie `URL`, `anon public` e `service_role` para as variáveis do passo 2.
 
-## 2. Netlify (site no ar, ainda sem domínio)
+## 2. Hospedagem: Railway (site no ar, ainda sem domínio)
+
+O projeto tem um servidor único (`server.mjs`) que serve as páginas, a API e roda sozinho a cada 15 minutos a rotina que termina pedidos parados. Funciona no Railway, no Render, numa VPS ou no seu computador (`npm start`).
 
 1. Suba esta pasta para um repositório no GitHub (privado).
-2. No Netlify: **Add new site → Import from Git** → escolha o repositório. Ele lê o `netlify.toml` sozinho (pasta `site`, funções em `netlify/functions`).
-3. **Site configuration → Environment variables**: cadastre as variáveis do arquivo `.env.example`. A primeira é `SITE_URL=https://<nome>.netlify.app`.
-4. Faça um novo deploy. Abra `https://<nome>.netlify.app/painel/` e entre com o usuário do passo 1.3.
-5. No painel, aba **Produtos**, toque em **Trazer fotos do Wix**: ele copia as fotos para o Supabase (assim nada depende do Wix depois).
+2. No Railway: **New Project → Deploy from GitHub repo** → escolha o repositório. Ele detecta Node e roda `npm start` (está no `railway.json`, com checagem de saúde em `/api/config`).
+3. Aba **Variables**: cadastre as variáveis do `.env.example` (dá para colar tudo de uma vez em **Raw Editor**).
+4. **Settings → Networking → Generate Domain**: o site fica em `https://<nome>.up.railway.app`. Enquanto não houver domínio próprio, o `SITE_URL` é preenchido sozinho com esse endereço.
+5. Abra `https://<nome>.up.railway.app/painel/` e entre com o usuário do passo 1.3.
+6. No painel, aba **Produtos**, toque em **Trazer fotos do Wix**: ele copia as fotos para o Supabase (assim nada depende do Wix depois).
+
+**Se preferir o Netlify (grátis):** **Add new site → Import from Git**. Ele lê o `netlify.toml` sozinho (páginas em `site`, API em `netlify/functions`, rotina de 15 min já agendada). Cadastre as mesmas variáveis com `SITE_URL=https://<nome>.netlify.app`.
 
 ## 3. InfinitePay (pagamento)
 
@@ -89,7 +94,7 @@ Se o dono preferir emitir a nota por fora (por exemplo, no app gratuito da SEFAZ
 
 Só depois do teste aprovado e com o dono de acordo:
 
-1. No Netlify: **Domain management → Add domain** → `admiravelcafe.com.br`. Ele mostra o que mudar no DNS.
+1. No Railway: **Settings → Networking → Custom Domain** → `admiravelcafe.com.br` (e `www`). Ele mostra o registro CNAME a criar. No Netlify: **Domain management → Add domain**.
 2. Mude o DNS onde o domínio está registrado (Wix ou Registro.br). A troca leva de minutos a algumas horas.
 3. Atualize `SITE_URL` e o Site URL do Supabase para `https://admiravelcafe.com.br`.
 4. Mantenha o Wix pago por mais um mês, por segurança. O plano atual renova em 11/12/2026.
@@ -100,15 +105,17 @@ Só depois do teste aprovado e com o dono de acordo:
 
 - CEP exato e bairro da Rua Presidente Prudente, 232 (origem dos pacotes).
 - Razão social do MEI e inscrição estadual, se houver.
-- Se a venda é de produção própria (torra própria, CFOP 5101) ou revenda (5102).
+- CFOP com o contador: ele compra café cru e paga uma torrefação (industrialização por encomenda, em geral 5101/6101), e se o MEI cobre essa atividade.
 - Se ele quer NF automática (Notaas) ou vender com declaração de conteúdo.
 - Faixa de CEP e preço da entrega local em Limeira (hoje: R$ 7, 1 a 4 dias úteis).
 - Itens marcados como "[capacidade a confirmar]" na página de eventos.
+- História e foto de quem criou a marca, para a seção "Quem faz a Admirável" da página Quem somos.
+- Fotos em boa resolução dos produtos e dos eventos (sobem pelo painel, em Produtos).
 
 ## Para o Drinho: rodar no computador
 
 ```bash
-npm run dev     # http://localhost:8888 (modo demonstração sem .env)
-npm test        # 19 testes: checkout, pagamento, NF, etiqueta, avisos, painel
+npm run dev     # http://localhost:8888 (modo demonstração sem .env); npm start faz o mesmo
+npm test        # 22 testes: checkout, pagamento, NF, etiqueta, avisos, painel
 ```
 O painel de demonstração entra com qualquer e-mail e senha.

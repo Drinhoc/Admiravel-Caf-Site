@@ -10,4 +10,4 @@ insert into produtos (id, slug, nome, tipo, ativo, ordem, selo, frase, descricao
 ('11111111-1111-4111-8111-000000000007','combo-doce-paraiso','Combo Doce de Leite + Paraíso','combo',true,7,'','As duas latas que começaram a casa.','Uma lata de Doce de Leite e uma de Paraíso, 250g cada.','{}'::text[],null,null,'#91D0FA',array['https://static.wixstatic.com/media/59f850_600d35b232984144b5c745075548fe76~mv2.png/v1/fit/w_800,h_800,q_85/combo-doce-paraiso.webp']::text[],array['assets/img/combo-paraiso.jpg']::text[],true,'[{"id": "combo", "nome": "2 latas 250g", "preco": 115, "preco_promo": null, "promo_ate": null, "estoque_grao": 0, "estoque_moido": 2, "peso_g": 1500, "altura": 0, "largura": 0, "comprimento": 0}]'::jsonb)
 on conflict (slug) do nothing;
 
-update ajustes set aviso_topo = 'Entrega local em Limeira · Enviamos para todo o Brasil', frete_gratis_acima = 0 where id = 1;
+update ajustes set aviso_topo = 'Entrega local em Limeira · Enviamos para todo o Brasil', frete_gratis_acima = 0, destaque_id = '11111111-1111-4111-8111-000000000001' where id = 1;

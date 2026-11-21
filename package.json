@@ -2,9 +2,12 @@
   "name": "admiravel-cafe-site",
   "private": true,
   "type": "module",
-  "description": "Site, loja e painel da Admirável Café (Netlify + Supabase + Mercado Pago + Melhor Envio + Focus NFe)",
-  "engines": { "node": ">=20" },
+  "description": "Site, loja e painel da Admirável Café (Railway ou Netlify + Supabase + InfinitePay + Melhor Envio + Notaas)",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
+    "start": "node server.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node --test tests/*.test.mjs"
   }

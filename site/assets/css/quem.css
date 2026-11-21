@@ -1,0 +1,59 @@
+/* Quem somos: abre em verde-oliva como a home; depois creme. As famílias ganham a cor do café que vem delas;
+   o caminho do grão é uma sequência real (numerada); a edição do artista num bloco escuro. */
+.quem section{padding-block:clamp(64px,9vw,120px)}
+.quem .big{line-height:.92}
+.q-abre{background:var(--olive);color:var(--paper)}
+.q-abre .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,6vw,80px);align-items:center}
+@media (max-width:860px){.q-abre .wrap{grid-template-columns:minmax(0,1fr)}}
+.q-abre .kicker{color:var(--mustard)}
+.q-abre h1{font-size:clamp(52px,7.6vw,112px);margin:18px 0 24px}
+.q-abre .lead{color:#F2EFE6;max-width:36ch}
+.q-abre figure img{width:100%;height:auto;border-radius:4px}
+
+.q-crencas h2,.q-quem-planta h2,.q-caminho h2{color:var(--ink);font-size:clamp(40px,5.6vw,76px);margin:10px 0 36px}
+.q-crencas h2{margin-top:0}
+.tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,4vw,48px);border-top:2px solid var(--ink);padding-top:24px}
+@media (max-width:760px){.tres{grid-template-columns:minmax(0,1fr)}}
+.tres h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(24px,2.4vw,30px);line-height:1;margin-bottom:10px}
+.tres p{font-size:16px;color:var(--muted);max-width:34ch}
+
+.q-quem-planta{background:var(--paper-2)}
+.q-quem-planta .kicker,.q-caminho .kicker{color:var(--mustard-deep)}
+.familias{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:860px){.familias{grid-template-columns:minmax(0,1fr)}}
+.familia{background:var(--bg);color:var(--fg,#F6F1E6);border-radius:4px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);overflow:hidden}
+@media (max-width:520px){.familia{grid-template-columns:minmax(0,1fr)}.familia img{max-height:260px}}
+.familia img{width:100%;height:100%;object-fit:cover}
+.familia>div{padding:clamp(20px,3vw,32px);display:grid;gap:8px;align-content:center;min-width:0}
+.familia .desde{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mustard)}
+.familia[style*="--fg"] .desde{color:var(--ink);opacity:.7}
+.familia h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(34px,3.6vw,46px);line-height:.95}
+.familia .onde{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.3}
+.familia p:last-child{font-size:15px}
+
+.passos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(16px,3vw,32px);counter-reset:p}
+@media (max-width:900px){.passos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.passos{grid-template-columns:minmax(0,1fr)}}
+.passos li{counter-increment:p;display:grid;gap:8px;align-content:start;border-top:2px solid var(--ink);padding-top:16px}
+.passos li::before{content:counter(p);font-family:var(--display);font-size:56px;line-height:1;color:var(--mustard)}
+.passos b{font-weight:800;font-size:17px;line-height:1.25}
+.passos span{font-size:15px;color:var(--muted)}
+
+.q-arte{background:var(--espresso);color:var(--paper)}
+.q-arte .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,6vw,80px);align-items:center}
+@media (max-width:860px){.q-arte .wrap{grid-template-columns:minmax(0,1fr)}}
+.q-arte .kicker{color:var(--mustard)}
+.q-arte h2{font-size:clamp(46px,6vw,88px);margin:12px 0 20px}
+.q-arte .lead{color:#E9E3D8;margin-bottom:28px;max-width:38ch}
+.q-arte figure img{width:100%;height:auto;border-radius:4px}
+
+.a-preencher{border:2px dashed var(--mustard-deep);border-radius:6px;padding:clamp(24px,4vw,44px);display:grid;gap:12px;max-width:760px}
+.a-preencher .kicker{color:var(--mustard-deep)}
+.a-preencher h2{color:var(--ink);font-size:clamp(36px,4.6vw,60px)}
+.a-preencher p:last-child{color:var(--muted);max-width:52ch}
+
+.q-fim{background:var(--mustard);text-align:center}
+.q-fim h2{color:var(--ink);font-size:clamp(46px,7vw,100px);margin-bottom:28px}
+.q-fim .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.q-fim .btn.mustard{background:var(--ink);color:var(--paper)}
+.q-fim .btn.line{color:var(--ink);border-color:var(--ink)}
