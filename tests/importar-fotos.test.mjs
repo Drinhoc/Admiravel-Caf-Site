@@ -1,42 +1,35 @@
-// "Trazer fotos do Wix": o servidor baixa a foto do Wix e guarda no Supabase (simulados).
+// "Trazer fotos do Wix": o servidor baixa a foto do Wix e guarda no banco do site (Wix simulado).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { usarBanco, db } from '../netlify/functions/_lib/db.mjs';
+import { usarBanco, bancoMemoria } from '../netlify/functions/_lib/db.mjs';
 import importar from '../netlify/functions/importar-fotos.mjs';
+import foto from '../netlify/functions/foto.mjs';
 
-const SB = 'https://proj.supabase.co';
 const WIX = 'https://static.wixstatic.com/media/59f850_x~mv2.png/v1/fit/w_800,h_800,q_85/a.webp';
-const produto = { id: 'p1', nome: 'Floral e Mel', fotos: [WIX, 'https://outro.cdn/b.webp'] };
-const chamadas = [];
+const ID = '11111111-1111-4111-8111-000000000009';
+const banco = bancoMemoria({ produtos: [{ id: ID, nome: 'Floral e Mel', slug: 'floral', ativo: true, fotos: [WIX, 'https://outro.cdn/b.webp'], embalagens: [] }], ajustes: {} });
+usarBanco(banco);
 
-globalThis.fetch = async (url, opts = {}) => {
-  url = String(url); chamadas.push({ url, opts });
-  const j = (b, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { 'content-type': 'application/json' } });
-  if (url === WIX) return new Response(new Uint8Array([1, 2, 3]), { headers: { 'content-type': 'image/webp' } });
-  if (url.endsWith('/auth/v1/user')) return opts.headers.Authorization === 'Bearer bom' ? j({ email: 'Dono@Admiravel.com' }) : j({}, 401);
-  if (url.includes('/rest/v1/admins')) return j(url.includes('dono%40admiravel.com') ? [{ email: 'dono@admiravel.com' }] : []);
-  if (url.includes('/rest/v1/produtos') && (opts.method || 'GET') === 'GET') return j([produto]);
-  if (url.includes('/rest/v1/produtos') && opts.method === 'PATCH') return j([{ ...produto, ...JSON.parse(opts.body) }]);
-  if (url.includes('/storage/v1/object/fotos/')) return j({ Key: 'ok' });
+globalThis.fetch = async (url) => {
+  if (String(url) === WIX) return new Response(new Uint8Array([1, 2, 3]), { headers: { 'content-type': 'image/webp' } });
   throw new Error('não simulado: ' + url);
 };
 
-test('copia só as fotos do Wix e atualiza o produto', async () => {
-  Object.assign(process.env, { SUPABASE_URL: SB, SUPABASE_SERVICE_KEY: 'svc' });
-  usarBanco(null); db();
-  const req = (token) => new Request('https://loja/api/importar-fotos', { method: 'POST', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ produto_id: 'p1' }) });
-
+test('copia só as fotos do Wix, guarda no banco e serve em /api/foto', async () => {
+  const req = (token) => new Request('https://loja/api/importar-fotos', { method: 'POST', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ produto_id: ID }) });
   assert.equal((await importar(req('ruim'))).status, 401);
 
-  const r = await importar(req('bom'));
+  const r = await importar(req('demo'));
   const d = await r.json();
   assert.equal(r.status, 200, JSON.stringify(d));
   assert.equal(d.copiadas, 1);
-  assert.match(d.fotos[0], /^https:\/\/proj\.supabase\.co\/storage\/v1\/object\/public\/fotos\/floral-e-mel\/wix-1-\d+\.webp$/);
+  assert.match(d.fotos[0], /^api\/foto\?id=[0-9a-f-]{36}$/);
   assert.equal(d.fotos[1], 'https://outro.cdn/b.webp');
-  const up = chamadas.find((c) => c.url.includes('/storage/v1/object/fotos/'));
-  assert.equal(up.opts.headers.Authorization, 'Bearer svc');
-  const patch = chamadas.find((c) => c.opts.method === 'PATCH');
-  assert.deepEqual(JSON.parse(patch.opts.body).fotos, d.fotos);
-  delete process.env.SUPABASE_URL; delete process.env.SUPABASE_SERVICE_KEY;
+  assert.deepEqual((await banco.produtosPorIds([ID]))[0].fotos, d.fotos);
+
+  const f = await foto(new Request('https://loja/' + d.fotos[0]));
+  assert.equal(f.status, 200);
+  assert.equal(f.headers.get('content-type'), 'image/webp');
+  assert.deepEqual([...new Uint8Array(await f.arrayBuffer())], [1, 2, 3]);
+  assert.equal((await foto(new Request('https://loja/api/foto?id=nada'))).status, 404);
 });

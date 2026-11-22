@@ -1,19 +1,40 @@
 -- =====================================================================
--- Admirável Café — banco de dados (Supabase / Postgres)
--- Como usar: no Supabase, abra "SQL Editor" → "New query", cole TUDO e clique em "Run".
--- Depois rode o seed.sql (catálogo) e cadastre o e-mail do dono na tabela admins (fim deste arquivo).
+-- Admirável Café — banco de dados (Postgres do Railway, ou qualquer Postgres 13+)
+-- O servidor roda este arquivo sozinho ao iniciar (é seguro rodar várias vezes).
 -- =====================================================================
 
-create extension if not exists pgcrypto;
+-- gen_random_uuid() já vem no Postgres 13+
+
+-- ---------- Configurações internas (segredo do login etc.) ----------
+create table if not exists config (chave text primary key, valor text not null);
 
 -- ---------- Quem pode usar o painel ----------
 create table if not exists admins (
-  email text primary key check (email = lower(email))  -- sempre em minúsculas
+  email text primary key check (email = lower(email)),  -- sempre em minúsculas
+  senha_hash text,                                      -- scrypt; vazio = ainda sem senha
+  senha_em timestamptz default now(),                   -- trocar a senha derruba os logins antigos
+  criado_em timestamptz default now()
 );
-create or replace function is_admin() returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from admins where lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
-$$;
+alter table admins add column if not exists senha_hash text;
+alter table admins add column if not exists senha_em timestamptz default now();
+alter table admins add column if not exists criado_em timestamptz default now();
+
+-- links de "esqueci a senha" (guardamos só o hash do código)
+create table if not exists senha_reset (
+  codigo_hash text primary key,
+  email text not null references admins(email) on delete cascade,
+  expira_em timestamptz not null,
+  usado boolean not null default false
+);
+
+-- ---------- Fotos enviadas pelo painel (ficam no próprio banco) ----------
+create table if not exists fotos (
+  id uuid primary key default gen_random_uuid(),
+  tipo text not null default 'image/webp',
+  dados bytea not null,
+  tamanho int,
+  criado_em timestamptz default now()
+);
 
 -- ---------- Produtos ----------
 create table if not exists produtos (
@@ -92,13 +113,13 @@ create table if not exists contatos_eventos (
 -- ---------- Funções usadas pelo site ----------
 -- Acrescenta uma linha no histórico do pedido
 create or replace function pedido_log(p_id uuid, p_msg text) returns void
-language sql security definer set search_path = public as $$
+language sql as $$
   update pedidos set historico = historico || jsonb_build_array(jsonb_build_object('em', now(), 'msg', p_msg)) where id = p_id;
 $$;
 
 -- Baixa o estoque dos itens pagos (nunca fica negativo)
 create or replace function baixar_estoque(p_itens jsonb) returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql as $$
 declare it jsonb; campo text;
 begin
   for it in select * from jsonb_array_elements(p_itens) loop
@@ -112,48 +133,3 @@ begin
     where p.id = (it->>'produto_id')::uuid;
   end loop;
 end $$;
-
--- Somente o servidor (chave de serviço) chama estas funções
-revoke execute on function pedido_log(uuid, text) from public, anon, authenticated;
-revoke execute on function baixar_estoque(jsonb) from public, anon, authenticated;
-
--- ---------- Segurança (RLS) ----------
-alter table admins enable row level security;
-alter table produtos enable row level security;
-alter table ajustes enable row level security;
-alter table pedidos enable row level security;
-alter table contatos_eventos enable row level security;
-
-drop policy if exists "admin lê admins" on admins;
-create policy "admin lê admins" on admins for select using (is_admin());
-
-drop policy if exists "todos veem produtos ativos" on produtos;
-create policy "todos veem produtos ativos" on produtos for select using (ativo or is_admin());
-drop policy if exists "admin edita produtos" on produtos;
-create policy "admin edita produtos" on produtos for all using (is_admin()) with check (is_admin());
-
-drop policy if exists "todos leem ajustes" on ajustes;
-create policy "todos leem ajustes" on ajustes for select using (true);
-drop policy if exists "admin edita ajustes" on ajustes;
-create policy "admin edita ajustes" on ajustes for update using (is_admin()) with check (is_admin());
-
--- Pedidos: só o dono vê pelo painel; o site usa a chave de serviço (que ignora RLS) no servidor.
-drop policy if exists "admin vê pedidos" on pedidos;
-create policy "admin vê pedidos" on pedidos for select using (is_admin());
-
-drop policy if exists "admin vê contatos" on contatos_eventos;
-create policy "admin vê contatos" on contatos_eventos for select using (is_admin());
-drop policy if exists "admin marca contatos" on contatos_eventos;
-create policy "admin marca contatos" on contatos_eventos for update using (is_admin()) with check (is_admin());
-
--- ---------- Fotos (Storage) ----------
-insert into storage.buckets (id, name, public) values ('fotos', 'fotos', true) on conflict (id) do nothing;
-drop policy if exists "fotos públicas" on storage.objects;
-create policy "fotos públicas" on storage.objects for select using (bucket_id = 'fotos');
-drop policy if exists "admin envia fotos" on storage.objects;
-create policy "admin envia fotos" on storage.objects for insert with check (bucket_id = 'fotos' and is_admin());
-drop policy if exists "admin apaga fotos" on storage.objects;
-create policy "admin apaga fotos" on storage.objects for delete using (bucket_id = 'fotos' and is_admin());
-
--- ---------- Cadastre aqui o e-mail de quem usa o painel ----------
--- insert into admins (email) values ('email-do-dono@exemplo.com');

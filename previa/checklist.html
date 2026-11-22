@@ -1,0 +1,310 @@
+<title>Admirável pronto pra teste</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: faixa escura de abertura + lista única por momento (domingo → segunda → teste), cada tarefa com dono e tempo. */
+:root{
+  --bg:#F5F3EE; --card:#FFFFFF; --ink:#1F1B18; --muted:#6B635B; --line:rgba(31,27,24,.13);
+  --mustard:#EAB54A; --mustard-ink:#8A6418; --olive:#72765B; --ok:#3D6B47; --band:#1F1B18; --band-fg:#F5F3EE;
+  --drinho:#2F5E7A; --dono:#7A3F1E; --juntos:#4E5A2E; --contador:#5B4C7A;
+  --display:"Anton","Oswald","Impact","Arial Narrow",sans-serif;
+  --sans:"Montserrat","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15120F; --card:#1F1B18; --ink:#EEE9E1; --muted:#A69C91; --line:rgba(238,233,225,.14);
+  --mustard:#EAB54A; --mustard-ink:#EAB54A; --olive:#9FA383; --ok:#7DB58A; --band:#0D0B09; --band-fg:#EEE9E1;
+  --drinho:#8EC1DE; --dono:#E7A27B; --juntos:#B8C48E; --contador:#C3B3E6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15120F; --card:#1F1B18; --ink:#EEE9E1; --muted:#A69C91; --line:rgba(238,233,225,.14);
+  --mustard:#EAB54A; --mustard-ink:#EAB54A; --olive:#9FA383; --ok:#7DB58A; --band:#0D0B09; --band-fg:#EEE9E1;
+  --drinho:#8EC1DE; --dono:#E7A27B; --juntos:#B8C48E; --contador:#C3B3E6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topo{background:var(--band);color:var(--band-fg);margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 32px);padding-bottom:28px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--mustard);margin:0}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(40px,9vw,68px);line-height:.92;margin:10px 0 12px;color:var(--mustard);text-wrap:balance;letter-spacing:.01em}
+.topo p{margin:0;max-width:60ch;opacity:.9}
+.barra{margin-top:22px;display:grid;gap:8px}
+.barra .trilho{height:10px;border-radius:5px;background:rgba(245,243,238,.16);overflow:hidden}
+.barra .enchido{height:100%;width:0;background:var(--mustard);transition:width .4s}
+.barra .num{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;font-variant-numeric:tabular-nums}
+.barra .num b{font-size:15px}
+.estado{font-size:12px;opacity:.75}
+main{padding-block:24px 56px;display:grid;gap:32px}
+.comigo{border:1px dashed var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:4px;background:var(--card)}
+.comigo strong{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--olive)}
+.comigo p{margin:0}
+section h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:28px;line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+.cab{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.cab .quando{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.sub{margin:10px 0 0;color:var(--muted);max-width:62ch}
+ul.lista{list-style:none;margin:0;padding:0}
+li.item{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.marca{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:2px 0 0;border:2px solid var(--ink);border-radius:5px;background:var(--card);cursor:pointer;display:grid;place-items:center;transition:background .15s}
+.marca:checked{background:var(--ok);border-color:var(--ok)}
+.marca:checked::after{content:"";width:7px;height:13px;border:solid var(--bg);border-width:0 3px 3px 0;transform:translate(0,-1px) rotate(45deg)}
+.marca:focus-visible{outline:2px solid var(--mustard);outline-offset:3px}
+.corpo{min-width:0;display:grid;gap:4px}
+.titulo{font-weight:600;font-size:15.5px;cursor:pointer}
+li.feito .titulo{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
+.como{margin:0;color:var(--muted);font-size:14px}
+.como code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--line);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.quem{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1.5px solid currentColor}
+.quem.drinho{color:var(--drinho)} .quem.dono{color:var(--dono)} .quem.juntos{color:var(--juntos)} .quem.contador{color:var(--contador)}
+.tempo{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.opc{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mustard-ink)}
+.campo{margin-top:6px;display:grid;gap:4px}
+.campo label{font-size:12px;font-weight:600;color:var(--muted)}
+.campo input{font:inherit;font-size:15px;width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+.campo input:focus{outline:none;border-color:var(--mustard)}
+.salvo{font-size:12px;color:var(--ok);min-height:1em}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+button.bt{font:inherit;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:12px 18px;border-radius:3px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
+button.bt:hover{background:var(--mustard);border-color:var(--mustard);color:#1F1B18}
+button.bt:focus-visible{outline:2px solid var(--mustard);outline-offset:3px}
+.copiado{font-size:13px;color:var(--ok)}
+textarea.msg{width:100%;min-height:180px;font:inherit;font-size:13px;padding:10px;border-radius:6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.depois{background:var(--card);border-radius:8px;padding:18px;border:1px solid var(--line)}
+.depois ul{margin:12px 0 0;padding-left:18px;display:grid;gap:8px}
+.aviso{margin:14px 0 0;font-size:13.5px;padding:10px 12px;border-left:3px solid var(--mustard);background:var(--card)}
+a{color:inherit;text-decoration-color:var(--mustard);text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="topo">
+  <div class="wrap">
+    <p class="kicker">Admirável Café · site próprio</p>
+    <h1>Pronto pra teste na segunda</h1>
+    <p>Só o que depende de gente: você (dev) e o dono. O código fica comigo. Marque conforme for fazendo; as marcações e os campos ficam salvos aqui.</p>
+    <div class="barra" aria-live="polite">
+      <div class="trilho"><div class="enchido" id="enchido"></div></div>
+      <div class="num"><span><b id="feitos">0</b> de <b id="total">0</b> feitas</span><span class="estado" id="estado">Carregando marcações…</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="conteudo">
+  <div class="comigo">
+    <strong>Parte do código: pronta</strong>
+    <p>Supabase removido. Banco, login do painel e fotos moram no próprio Railway; as tabelas e os 7 produtos de hoje são criados sozinhos na primeira subida. Guia atualizado em docs/COMO-PUBLICAR.md. Quando você criar o repositório, eu subo o código.</p>
+  </div>
+</main>
+
+<script>
+const SECOES = [
+  { id:'dom-dev', titulo:'Domingo · você monta', quando:'cerca de 1 h',
+    sub:'Precisa de cartão e das suas contas, por isso é com você.',
+    itens:[
+      {id:'github', quem:'drinho', tempo:'10 min', t:'Criar o repositório privado no GitHub',
+        como:'Repositório vazio (ex.: <code>admiravel-site</code>), com o app do Claude instalado nele. Me diga o nome que eu subo o código daqui.',
+        campo:{rotulo:'Nome do repositório', ph:'usuario/admiravel-site'}},
+      {id:'railway', quem:'drinho', tempo:'10 min', t:'Criar o projeto no Railway',
+        como:'Plano Hobby (cerca de US$ 5/mês). <code>New Project → Deploy from GitHub repo</code> → escolha o repositório. Ele roda <code>npm start</code> sozinho.'},
+      {id:'postgres', quem:'drinho', tempo:'5 min', t:'Adicionar o banco Postgres',
+        como:'No projeto: <code>+ New → Database → PostgreSQL</code>. No serviço do site, aba Variables: <code>DATABASE_URL = ${{Postgres.DATABASE_URL}}</code>.'},
+      {id:'admin', quem:'drinho', tempo:'5 min', t:'Criar o acesso ao painel',
+        como:'Variáveis <code>ADMIN_EMAIL</code> (o do dono e o seu, separados por vírgula) e <code>ADMIN_SENHA</code> (provisória, 8+ caracteres). Depois cada um troca a sua em Ajustes.'},
+      {id:'dominio', quem:'drinho', tempo:'2 min', t:'Gerar o endereço de teste',
+        como:'<code>Settings → Networking → Generate Domain</code>. O site fica em <code>https://algo.up.railway.app</code>; o domínio de verdade só muda no fim.',
+        campo:{rotulo:'Endereço de teste', ph:'https://….up.railway.app'}},
+      {id:'me-sandbox', quem:'drinho', tempo:'15 min', t:'Melhor Envio de teste (sandbox)',
+        como:'Conta em <code>sandbox.melhorenvio.com.br</code> com o endereço da loja. <code>Integrações → Permissões de acesso → Gerar token</code> com as 8 permissões do guia. Variáveis <code>ME_TOKEN</code> e <code>ME_SANDBOX=true</code>.'},
+      {id:'telegram', quem:'juntos', tempo:'10 min', t:'Aviso de pedido no celular do dono (Telegram)',
+        como:'Você cria o bot no <code>@BotFather</code> (<code>/newbot</code>) e põe <code>TELEGRAM_BOT_TOKEN</code>. O dono manda um "oi" pro bot; você pega o <code>chat.id</code> e põe em <code>TELEGRAM_CHAT_ID</code>.'},
+      {id:'resend', quem:'drinho', tempo:'20 min', opcional:true, t:'E-mail de confirmação pro cliente (Resend)',
+        como:'Dá pra deixar pra depois: sem ele o teste funciona, só não chega e-mail. Se fizer, os registros DNS do Resend são só <b>adicionados</b> onde o domínio é gerenciado; não apague nem mude nenhum registro existente.'},
+    ]},
+  { id:'dom-dono', titulo:'Domingo · perguntar ao dono', quando:'mensagem no WhatsApp',
+    sub:'Respostas curtas. Anote aqui quando ele responder; eu leio daqui e atualizo o site.',
+    mensagem:true,
+    itens:[
+      {id:'infinitetag', quem:'dono', t:'InfinitePay: link de pagamento ativo e a InfiniteTag',
+        como:'No app InfinitePay, confirmar que o Link de pagamento/Checkout está ligado e passar a InfiniteTag (o <code>$nome</code>).',
+        pergunta:'Qual é a sua InfiniteTag da InfinitePay (o $nome)? E o Link de pagamento está ativo no app?',
+        campo:{rotulo:'InfiniteTag', ph:'$admiravelcafe'}},
+      {id:'endereco', quem:'dono', t:'CEP e bairro de onde saem os pacotes',
+        como:'Rua Presidente Prudente, 232, Limeira. Falta o CEP exato e o bairro (vai na etiqueta).',
+        pergunta:'Qual o CEP e o bairro da Rua Presidente Prudente, 232 (de onde saem os pacotes)?',
+        campo:{rotulo:'CEP e bairro', ph:'13480-… · Centro'}},
+      {id:'razao', quem:'dono', t:'Razão social do MEI e inscrição estadual',
+        como:'Aparece no comprovante e na declaração de conteúdo. IE só se tiver.',
+        pergunta:'Qual a razão social do MEI (como está no CNPJ)? Tem inscrição estadual?',
+        campo:{rotulo:'Razão social · IE', ph:'Nome do MEI · IE ou "não tem"'}},
+      {id:'local', quem:'dono', t:'Entrega em Limeira: preço e prazo',
+        como:'Hoje está R$ 7, de 1 a 4 dias úteis, para CEPs de Limeira. Confirmar ou corrigir.',
+        pergunta:'Entrega em Limeira: mantém R$ 7 e 1 a 4 dias úteis? Vale pra cidade toda?',
+        campo:{rotulo:'Preço e prazo local', ph:'R$ 7 · 1 a 4 dias · cidade toda'}},
+      {id:'nf-ok', quem:'dono', t:'De acordo em testar sem NF (com declaração de conteúdo)',
+        como:'Para o teste de segunda o pedido sai com declaração de conteúdo, permitido para MEI vendendo a pessoa física. A NF automática vem depois, com o contador. O Wix continua emitindo como hoje.',
+        pergunta:'Pro teste de segunda, ok o pacote ir com declaração de conteúdo (sem NF)? A NF automática a gente liga depois, com o contador. O site do Wix continua igual.'},
+      {id:'fotos', quem:'dono', t:'Fotos em boa resolução',
+        como:'Dos 7 produtos e de 3 a 5 de eventos. No WhatsApp, mandar como <b>documento</b>, não como foto, pra não perder qualidade.',
+        pergunta:'Consegue me mandar as fotos em boa resolução dos produtos e de alguns eventos? Manda como documento no WhatsApp, pra não perder qualidade.'},
+      {id:'quem-somos', quem:'dono', t:'Quem somos: a história dele',
+        como:'Nome, desde quando, como começou, e uma foto dele. O texto atual foi tirado da página Sobre e ele só ajusta.',
+        pergunta:'Pra página Quem somos: seu nome como quer que apareça, desde quando trabalha com café, como começou, e uma foto sua.'},
+      {id:'eventos', quem:'dono', t:'Eventos: as regras do serviço',
+        como:'Antecedência mínima para reservar, cidades atendidas, convidados por barista e como cobra (sinal, valor fechado, por pessoa).',
+        pergunta:'Eventos: com quanta antecedência precisa reservar, quais cidades atende, quantos convidados por barista e como cobra (sinal? por pessoa?).'},
+      {id:'roteiro', quem:'dono', tempo:'10 min', t:'Fazer o roteiro de teste da prévia',
+        como:'4 tarefas curtas no celular (comprar, despachar, mudar a vitrine, pedir evento) e enviar as respostas. Você compartilha o link da prévia com ele pelo botão Share.',
+        pergunta:'Vou te mandar um link com uma prévia do site novo. São 4 tarefinhas de 10 minutos; no fim tem um botão pra me mandar o que achou.'},
+    ]},
+  { id:'seg-manha', titulo:'Segunda de manhã · ligar e conferir', quando:'cerca de 30 min',
+    sub:'Depois que o código estiver no Railway e o dono tiver respondido.',
+    itens:[
+      {id:'var-pag', quem:'drinho', tempo:'2 min', t:'Ligar o pagamento',
+        como:'Variáveis <code>PAGAMENTO_PROVEDOR=infinitepay</code> e <code>INFINITEPAY_HANDLE</code> (a InfiniteTag sem o <code>$</code>).'},
+      {id:'login', quem:'drinho', tempo:'5 min', t:'Entrar no painel e trocar a senha provisória',
+        como:'Abrir <code>/painel/</code> no endereço de teste com <code>ADMIN_EMAIL</code> e <code>ADMIN_SENHA</code>; trocar em Ajustes.'},
+      {id:'fotos-wix', quem:'drinho', tempo:'3 min', t:'Trazer as fotos do Wix',
+        como:'Painel → Produtos → <b>Trazer fotos do Wix</b>. Copia as fotos atuais para o banco do Railway. Só lê do Wix, não muda nada lá.'},
+      {id:'saldo-sandbox', quem:'drinho', tempo:'5 min', t:'Pôr saldo de teste no Melhor Envio sandbox',
+        como:'No sandbox a carteira aceita um depósito fictício. Sem saldo a etiqueta não sai.'},
+      {id:'produto-teste', quem:'drinho', tempo:'2 min', t:'Criar o produto "Teste" de R$ 1,00',
+        como:'Painel → Produtos → Novo. Preço R$ 1,00, estoque 1, peso 0,3 kg.'},
+    ]},
+  { id:'seg-teste', titulo:'Segunda · teste de verdade', quando:'cerca de 40 min, juntos',
+    sub:'Um pedido real de R$ 1 do começo ao fim. Se algo falhar, me mande print ou o número do pedido.',
+    itens:[
+      {id:'frete', quem:'drinho', tempo:'5 min', t:'Simular o frete no carrinho',
+        como:'Um CEP de Limeira e um de outro estado. Comparar com o que o Wix cobra hoje para os mesmos CEPs.'},
+      {id:'pix', quem:'drinho', tempo:'5 min', t:'Comprar o "Teste" com Pix de verdade',
+        como:'Seus dados reais. A página do pedido deve mudar para <b>Pagamento aprovado</b> em até 1 minuto depois do Pix.'},
+      {id:'aviso', quem:'dono', tempo:'2 min', t:'Conferir se o aviso chegou no celular do dono',
+        como:'Mensagem do bot no Telegram com o pedido. Depois, uma segunda: "pronto para despachar".'},
+      {id:'despachar', quem:'dono', tempo:'10 min', t:'Dono despacha pelo painel, sozinho, no celular',
+        como:'Abrir o pedido, ver a etiqueta (de teste) e marcar como enviado. Você só observa onde ele trava.'},
+      {id:'vitrine', quem:'dono', tempo:'5 min', t:'Dono muda o café em destaque e põe uma promoção',
+        como:'Produtos → marcar outro café em destaque e dar um preço promocional. Conferir na página inicial e depois desfazer.'},
+      {id:'estorno', quem:'dono', tempo:'5 min', t:'Estornar os R$ 1 e desligar o "Teste"',
+        como:'Estorno no app da InfinitePay (só ele pode). No painel, desligar ou excluir o produto Teste.'},
+      {id:'cartao', quem:'drinho', tempo:'5 min', opcional:true, t:'Repetir com cartão',
+        como:'Mesmo roteiro, pagando no cartão. Estornar em seguida.'},
+    ]},
+];
+
+const DEPOIS = [
+  ['contador','Contador: confirmar o CFOP (ele compra café cru e paga a torrefação, industrialização por encomenda) e se o MEI cobre essa atividade.'],
+  ['dono','NF automática (Notaas): conta com o CNPJ e certificado digital A1. Só liga depois do contador.'],
+  ['dono','Melhor Envio de verdade: conta real, token novo, <code>ME_SANDBOX=false</code> e saldo na carteira.'],
+  ['drinho','Trocar o domínio <code>admiravelcafe.com.br</code> para o Railway, com o dono de acordo.'],
+  ['juntos','Manter o Wix pago e funcionando por mais um mês depois da troca. O plano renova em 11/12/2026.'],
+];
+
+const NOMES = { drinho:'Drinho', dono:'Dono', juntos:'Drinho + dono', contador:'Contador' };
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TODOS = SECOES.flatMap((s) => s.itens);
+const estado = {};           // id → {feito, nota}
+let banco = null, colecao = null, local = false;
+const $ = (id) => document.getElementById(id);
+
+function montar() {
+  const main = $('conteudo');
+  for (const s of SECOES) {
+    const sec = document.createElement('section');
+    sec.innerHTML = `<div class="cab"><h2>${esc(s.titulo)}</h2><span class="quando">${esc(s.quando)}</span></div>
+      <p class="sub">${esc(s.sub)}</p>
+      <ul class="lista">${s.itens.map((i) => `
+        <li class="item" id="li-${i.id}">
+          <input type="checkbox" class="marca" id="ck-${i.id}" data-id="${i.id}" aria-label="${esc(i.t)}">
+          <div class="corpo">
+            <label class="titulo" for="ck-${i.id}">${esc(i.t)}</label>
+            <p class="como">${i.como}</p>
+            <div class="meta"><span class="quem ${i.quem}">${NOMES[i.quem]}</span>${i.tempo ? `<span class="tempo">${esc(i.tempo)}</span>` : ''}${i.opcional ? '<span class="opc">opcional</span>' : ''}</div>
+            ${i.campo ? `<div class="campo"><label for="in-${i.id}">${esc(i.campo.rotulo)}</label>
+              <input id="in-${i.id}" data-id="${i.id}" type="text" autocomplete="off" placeholder="${esc(i.campo.ph)}"><span class="salvo" id="sv-${i.id}"></span></div>` : ''}
+          </div>
+        </li>`).join('')}</ul>
+      ${s.mensagem ? `<div class="acoes"><button class="bt" id="copiar" type="button">Copiar mensagem pro dono</button><span class="copiado" id="copiado"></span></div>
+        <textarea class="msg" id="msg" readonly hidden aria-label="Mensagem pro dono"></textarea>
+        <p class="aviso">Não cole senhas, tokens ou chaves nos campos: tudo aqui fica visível para quem abrir esta página.</p>` : ''}`;
+    main.appendChild(sec);
+  }
+  const dep = document.createElement('section');
+  dep.innerHTML = `<div class="cab"><h2>Depois que o teste passar</h2><span class="quando">não é pra segunda</span></div>
+    <div class="depois" style="margin-top:14px"><strong>Até lá, o site do Wix fica intocado.</strong> A NF e o Mercado Envios de lá seguem funcionando como hoje.
+    <ul>${DEPOIS.map(([q, t]) => `<li><span class="quem ${q}">${NOMES[q]}</span> ${t}</li>`).join('')}</ul></div>`;
+  main.appendChild(dep);
+  $('total').textContent = TODOS.length;
+
+  main.addEventListener('change', (e) => {
+    const id = e.target.dataset.id; if (!id) return;
+    if (e.target.classList.contains('marca')) { (estado[id] ||= {}).feito = e.target.checked; pintar(); salvar(id); }
+  });
+  const timers = {};
+  main.addEventListener('input', (e) => {
+    const id = e.target.dataset.id; if (!id || e.target.tagName !== 'INPUT' || e.target.type !== 'text') return;
+    (estado[id] ||= {}).nota = e.target.value.slice(0, 300);
+    $('sv-' + id).textContent = '';
+    clearTimeout(timers[id]); timers[id] = setTimeout(() => salvar(id), 900);
+  });
+  $('copiar')?.addEventListener('click', copiarMensagem);
+}
+
+function pintar() {
+  let n = 0;
+  for (const i of TODOS) {
+    const st = estado[i.id] || {};
+    const ck = $('ck-' + i.id); if (ck.checked !== !!st.feito) ck.checked = !!st.feito;
+    $('li-' + i.id).classList.toggle('feito', !!st.feito);
+    const inp = $('in-' + i.id);
+    if (inp && document.activeElement !== inp && inp.value !== (st.nota || '')) inp.value = st.nota || '';
+    if (st.feito) n++;
+  }
+  $('feitos').textContent = n;
+  $('enchido').style.width = (100 * n / TODOS.length) + '%';
+}
+
+const fila = {};
+async function salvar(id) {
+  const st = estado[id] || {};
+  const corpo = { feito: !!st.feito, nota: st.nota || '', em: new Date().toISOString() };
+  if (local || !colecao) {
+    try { localStorage.setItem('adm_check_v1', JSON.stringify(estado)); } catch {}
+    return;
+  }
+  // um write por vez por documento
+  fila[id] = (fila[id] || Promise.resolve()).then(() => colecao.doc(id).set(corpo)).then(() => {
+    const sv = $('sv-' + id); if (sv && st.nota) sv.textContent = 'Salvo';
+  }).catch((e) => {
+    $('estado').textContent = e?.code === 'permission_denied' || e?.code === 'not_granted'
+      ? 'Você só pode ver: marcações não são salvas.' : 'Não consegui salvar agora. Tente de novo em instantes.';
+  });
+}
+
+function copiarMensagem() {
+  const itens = SECOES.find((s) => s.mensagem).itens.filter((i) => !(estado[i.id] || {}).feito);
+  const txt = ['Oi! Pra deixar o site novo pronto pra testar na segunda, preciso de umas coisinhas:', '',
+    ...itens.map((i, k) => `${k + 1}. ${i.pergunta}`), '', 'O site atual no Wix continua no ar igualzinho até o novo passar no teste.'].join('\n');
+  const ta = $('msg'); ta.value = txt;
+  const ok = () => { $('copiado').textContent = itens.length ? `Copiado: ${itens.length} pergunta${itens.length > 1 ? 's' : ''}. É só colar no WhatsApp.` : 'Tudo respondido.'; };
+  const falhou = () => { ta.hidden = false; ta.focus(); ta.select(); $('copiado').textContent = 'Selecionei o texto abaixo: copie e cole no WhatsApp.'; };
+  try { navigator.clipboard.writeText(txt).then(ok, falhou); } catch { falhou(); }
+}
+
+function modoLocal(motivo) {
+  local = true;
+  try { Object.assign(estado, JSON.parse(localStorage.getItem('adm_check_v1') || '{}')); } catch {}
+  $('estado').textContent = motivo;
+  pintar();
+}
+
+async function iniciar() {
+  montar(); pintar();
+  banco = await window.claude?.use?.('db').catch(() => null) ?? null;
+  if (!banco) { modoLocal('Marcações salvas só neste aparelho.'); return; }
+  colecao = banco.collection('itens');
+  const relogio = setTimeout(() => { $('estado').textContent = 'Ainda não consegui buscar as marcações salvas.'; }, 10000);
+  colecao.onSnapshot((snap) => {
+    for (const d of snap.docs) { const v = d.data() || {}; estado[d.id] = { feito: !!v.feito, nota: String(v.nota || '') }; }
+    pintar();
+    if (!snap.metadata.fromCache) { clearTimeout(relogio); $('estado').textContent = 'Salvo para todos que abrirem este link.'; }
+  }, () => { clearTimeout(relogio); modoLocal('Sem conexão com o salvamento: marcações só neste aparelho.'); });
+}
+iniciar();
+</script>

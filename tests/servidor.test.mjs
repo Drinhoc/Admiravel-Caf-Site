@@ -39,3 +39,13 @@ test('não deixa sair da pasta do site', async () => {
   const r = await fetch(B + '/%2e%2e/package.json');
   assert.notEqual(r.status, 200);
 });
+
+test('painel em modo demonstração: entra, lista e protege', async () => {
+  const api = (acao, dados = {}, passe) => fetch(B + '/api/admin', { method: 'POST', headers: { 'content-type': 'application/json', ...(passe ? { authorization: `Bearer ${passe}` } : {}) }, body: JSON.stringify({ acao, ...dados }) });
+  assert.equal((await api('produtos')).status, 401);
+  const { passe } = await (await api('entrar', { email: 'dono@teste.com', senha: 'qualquer' })).json();
+  const ps = await (await api('produtos', {}, passe)).json();
+  assert.ok(ps.length >= 3);
+  assert.equal((await (await fetch(B + '/api/config')).json()).banco, 'memoria');
+  assert.equal((await fetch(B + '/api/foto?id=nada')).status, 404);
+});

@@ -6,7 +6,7 @@ import { LOJA } from './loja.mjs';
 
 const painel = () => `${(env('SITE_URL') || env('URL') || '').replace(/\/$/, '')}/painel/`;
 
-async function email(para, assunto, html) {
+export async function email(para, assunto, html) {
   if (!env('RESEND_API_KEY') || !para) return false;
   await chamar('https://api.resend.com/emails', {
     method: 'POST',

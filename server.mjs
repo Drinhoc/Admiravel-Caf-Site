@@ -12,13 +12,14 @@ const RAIZ = resolve(fileURLToPath(new URL('.', import.meta.url)));
 const SITE = join(RAIZ, 'site');
 const FUNCS = join(RAIZ, 'netlify/functions');
 const PORTA = Number(process.env.PORT || 8888);
-const LIMITE_CORPO = 2 * 1024 * 1024; // 2 MB (fotos vão direto para o Supabase, não passam por aqui)
+const LIMITE_CORPO = 6 * 1024 * 1024; // 6 MB (cabe uma foto enviada pelo painel)
 
 // .env local (no Railway as variáveis vêm do painel dele)
 if (existsSync(join(RAIZ, '.env'))) {
   for (const linha of readFileSync(join(RAIZ, '.env'), 'utf8').split('\n')) {
     const m = linha.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+    // ignora referências do Railway (${{...}}) copiadas do .env.example
+    if (m && !process.env[m[1]] && !m[2].includes('${{')) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
   }
 }
 if (!process.env.SITE_URL && process.env.RAILWAY_PUBLIC_DOMAIN) process.env.SITE_URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
@@ -32,6 +33,10 @@ for (const f of await readdir(FUNCS)) {
   if (mod.config?.path) rotas.set(mod.config.path, mod.default);
   if (mod.config?.schedule) faxina = mod.default;
 }
+
+// prepara o banco já na subida (cria/atualiza as tabelas), para o primeiro cliente não esperar
+const { db } = await import(pathToFileURL(join(FUNCS, '_lib/db.mjs')).href);
+db().pronto?.().then(() => console.log('Banco de dados pronto.'), (e) => console.error(e.message));
 
 const TIPOS = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

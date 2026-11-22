@@ -82,6 +82,13 @@
         <button class="bt" type="submit">Salvar ajustes</button>
       </form>
       <div class="caixa-info" id="status-servicos"></div>
+      <form id="form-minha-senha" class="form" style="margin-top:28px">
+        <h2 style="margin:0;font-size:18px;font-weight:700">Trocar minha senha</h2>
+        <label>Senha atual<input type="password" name="atual" autocomplete="current-password" required></label>
+        <label>Senha nova<input type="password" name="nova" minlength="8" autocomplete="new-password" required><small>Pelo menos 8 caracteres.</small></label>
+        <label>Repita a senha nova<input type="password" name="nova2" minlength="8" autocomplete="new-password" required></label>
+        <button class="bt claro" type="submit">Trocar senha</button>
+      </form>
     </section>
   </main>
 </div>

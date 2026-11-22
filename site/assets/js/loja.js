@@ -51,7 +51,7 @@ export function cores(hex) {
   return { bg: '#' + h, fg: L > 0.55 ? '#1F2A33' : '#F6F1E6', claro: L > 0.55 };
 }
 
-// foto com reserva (se a do Wix/Supabase falhar, usa a cópia local; se não houver, placa com o nome)
+// foto com reserva (se a do Wix ou do banco falhar, usa a cópia local; se não houver, placa com o nome)
 export function foto(p, i = 0, cls = '') {
   const src = p.fotos?.[i] || p.fotos_local?.[i];
   const reserva = p.fotos_local?.[i] || '';

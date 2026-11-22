@@ -307,7 +307,7 @@ async function salvarProduto(ev) {
   const fotosLocais = edit.fotos_local || [];
   // fotos que são cópias locais do site ficam em fotos_local; o resto em fotos
   const { _daLocal, _destaque, ...resto } = edit;
-  const dados = { ...resto, fotos: edit.fotos.filter((u) => /^(https?:|data:)/.test(u)), fotos_local: _daLocal ? fotosLocais.filter((u) => edit.fotos.includes(u)) : fotosLocais };
+  const dados = { ...resto, fotos: edit.fotos.filter((u) => !fotosLocais.includes(u)), fotos_local: _daLocal ? fotosLocais.filter((u) => edit.fotos.includes(u)) : fotosLocais };
   const b = $('#form-produto [type=submit]');
   const salvo = await ocupado(b, async () => {
     const r = await S.salvarProduto(dados);
@@ -365,7 +365,7 @@ async function carregarAjustes() {
     ${linha('Pagamento', c.pagamento === 'infinitepay' ? 'InfinitePay conectado' : c.pagamento === 'mercadopago' ? 'Mercado Pago conectado' : 'não conectado (demonstração)', c.pagamento && c.pagamento !== 'demo')}
     ${linha('Frete', c.frete || 'não conectado', c.frete === 'Melhor Envio')}
     ${linha('Nota fiscal', c.nf || 'sem NF automática', c.nf === 'notaas' || c.nf === 'focus')}
-    <small style="color:var(--muted)">Quem conecta é o Drinho, no Netlify (ver guia).</small>`;
+    <small style="color:var(--muted)">Quem conecta é o Drinho, no Railway (ver guia).</small>`;
 }
 
 // ================= navegação e início =================
@@ -396,13 +396,21 @@ async function iniciar() {
   S = await criarStore();
   if (S.demo) {
     $('#demo-faixa').hidden = false;
+    $('#form-minha-senha').hidden = true;
     $('#zerar-demo').addEventListener('click', (e) => { if (doisToques(e.currentTarget, 'Toque de novo para apagar tudo')) { S.zerar(); location.reload(); } });
     const f = $('#form-login'); f.email.value = 'dono@admiravelcafe.com.br'; f.senha.value = 'demonstracao';
   }
+  let recuperando = false;
   S.aoRecuperarSenha(() => {
-    $('#tela-login').hidden = true; $('#app').hidden = false;
-    abrirFolha(`<div class="fcab"><h2>Nova senha</h2><button class="x" aria-label="Fechar">×</button></div><form class="fcorpo form" id="form-senha"><label>Nova senha<input type="password" name="s" minlength="8" required autocomplete="new-password"></label><button class="bt ouro grande">Salvar senha</button></form>`);
-    $('#form-senha').addEventListener('submit', async (e) => { e.preventDefault(); await ocupado(e.submitter, () => S.novaSenha(e.target.s.value)); aviso('Senha trocada.'); fecharFolha(); });
+    recuperando = true;
+    $('#tela-login').hidden = true;
+    abrirFolha(`<div class="fcab"><h2>Nova senha</h2><button class="x" aria-label="Fechar">×</button></div><form class="fcorpo form" id="form-senha"><label>Nova senha<input type="password" name="s" minlength="8" required autocomplete="new-password"><small>Pelo menos 8 caracteres.</small></label><button class="bt ouro grande">Salvar senha</button></form>`);
+    $('#form-senha').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const s = await ocupado(e.submitter, () => S.novaSenha(e.target.s.value)).catch(() => null);
+      if (!s) return;
+      aviso('Senha nova salva.'); fecharFolha(); mostrarApp(s);
+    });
   });
 
   $('#form-login').addEventListener('submit', async (e) => {
@@ -438,6 +446,15 @@ async function iniciar() {
     if (e.target.name === 'tem_moagem') { lerFormProduto(); $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join(''); }
   });
 
+  $('#form-minha-senha').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    if (f.nova.value !== f.nova2.value) return aviso('As duas senhas novas não são iguais.');
+    if (!(await ocupado(e.submitter, () => S.trocarSenha(f.atual.value, f.nova.value)).then(() => true, () => false))) return;
+    f.reset(); aviso('Senha trocada. Nos outros aparelhos, entre de novo com a senha nova.');
+  });
+
+  if (recuperando) return;
   const s = await S.sessao();
   if (s) mostrarApp(s); else $('#tela-login').hidden = false;
 }

@@ -42,7 +42,7 @@ const de = (trecho) => chamadas.filter((c) => c.url.includes(trecho));
 const req = (path, body, headers = {}) => new Request(BASE + path, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) });
 
 function configurar(extra = {}) {
-  for (const k of Object.keys(process.env)) if (/^(INFINITEPAY|NOTAAS|NF_|ME_|FOCUS|MP_|PAGAMENTO|RESEND|AVISO|TELEGRAM|SUPABASE|SITE_URL)/.test(k)) delete process.env[k];
+  for (const k of Object.keys(process.env)) if (/^(INFINITEPAY|NOTAAS|NF_|ME_|FOCUS|MP_|PAGAMENTO|RESEND|AVISO|TELEGRAM|DATABASE_URL|ADMIN_|SITE_URL)/.test(k)) delete process.env[k];
   Object.assign(process.env, {
     SITE_URL: BASE, INFINITEPAY_HANDLE: 'admiravel', NF_PROVEDOR: 'notaas', NOTAAS_API_KEY: 'nk_teste',
     ME_TOKEN: 'me_teste', RESEND_API_KEY: 're_teste', AVISO_EMAIL_PARA: 'dono@teste.com',

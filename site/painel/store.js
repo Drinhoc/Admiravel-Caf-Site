@@ -1,7 +1,6 @@
-// Camada de dados do painel. Com Supabase configurado usa o banco de verdade; sem ele, uma demonstração no navegador.
+// Camada de dados do painel. Com o servidor no ar (Railway ou `npm start`) usa a API /api/admin;
+// aberto como arquivo estático (prévia), cai numa demonstração que guarda tudo no navegador.
 import * as demo from '../assets/js/demo-db.js';
-
-const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 
 export async function criarStore() {
   let cfg = null;
@@ -9,8 +8,7 @@ export async function criarStore() {
     const r = await fetch('../api/config');
     if (r.ok && (r.headers.get('content-type') || '').includes('json')) cfg = await r.json();
   } catch {}
-  if (cfg?.supabaseUrl && cfg?.supabaseAnonKey) return lojaReal(cfg);
-  return lojaDemo(cfg);
+  return cfg?.banco ? lojaServidor(cfg) : lojaDemo(cfg);
 }
 
 // Reduz a foto no próprio navegador antes de enviar (fica leve e rápida no site).
@@ -20,70 +18,62 @@ export async function reduzirFoto(arquivo, max = 1600, qualidade = 0.85) {
   const c = document.createElement('canvas');
   c.width = Math.round(bm.width * s); c.height = Math.round(bm.height * s);
   c.getContext('2d').drawImage(bm, 0, 0, c.width, c.height);
-  return new Promise((ok) => c.toBlob(ok, 'image/webp', qualidade));
+  const gerar = (tipo) => new Promise((ok) => c.toBlob(ok, tipo, qualidade));
+  const b = await gerar('image/webp');
+  return b?.type === 'image/webp' ? b : gerar('image/jpeg'); // Safari antigo não gera WebP
 }
 const slugify = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'produto';
 
-// ---------------- Supabase ----------------
-async function lojaReal(cfg) {
-  const { createClient } = await import(SUPABASE_JS);
-  const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, detectSessionInUrl: true } });
-  const ok = ({ data, error }) => { if (error) throw new Error(error.message); return data; };
-  const token = async () => (await sb.auth.getSession()).data.session?.access_token;
+// ---------------- Servidor (Postgres no Railway) ----------------
+function lojaServidor(cfg) {
+  const CHAVE = 'adm_passe_v1';
+  let passe = ''; try { passe = localStorage.getItem(CHAVE) || ''; } catch {}
+  const guardar = (p) => { passe = p || ''; try { p ? localStorage.setItem(CHAVE, p) : localStorage.removeItem(CHAVE); } catch {} };
+  const codigoReset = new URLSearchParams(location.search).get('redefinir');
+
+  async function api(acao, dados = {}, url = '../api/admin') {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(passe ? { Authorization: `Bearer ${passe}` } : {}) }, body: JSON.stringify({ acao, ...dados }) });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401 && passe && !['entrar', 'trocar_senha'].includes(acao)) { guardar(''); location.reload(); }
+    if (!r.ok) throw new Error(d.erro || 'Não deu certo. Tente de novo.');
+    return d;
+  }
+  const comSessao = (d) => { guardar(d.passe); return { user: { email: d.email } }; };
 
   return {
     demo: false, cfg,
-    async sessao() { return (await sb.auth.getSession()).data.session; },
-    async entrar(email, senha) {
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
-      if (error) throw new Error(/invalid/i.test(error.message) ? 'E-mail ou senha incorretos.' : error.message);
-      const adm = await sb.from('admins').select('email').eq('email', email.toLowerCase());
-      if (!adm.data?.length) { await sb.auth.signOut(); throw new Error('Este e-mail não tem acesso ao painel.'); }
-      return data.session;
+    async sessao() {
+      if (!passe) return null;
+      try { return { user: { email: (await api('sessao')).email } }; } catch { return null; }
     },
-    sair: () => sb.auth.signOut(),
-    async esqueci(email) { ok(await sb.auth.resetPasswordForEmail(email, { redirectTo: location.href.split('#')[0] })); },
-    aoRecuperarSenha(fn) { sb.auth.onAuthStateChange((ev) => ev === 'PASSWORD_RECOVERY' && fn()); },
-    async novaSenha(senha) { ok(await sb.auth.updateUser({ password: senha })); },
+    async entrar(email, senha) { return comSessao(await api('entrar', { email, senha })); },
+    async sair() { guardar(''); },
+    async esqueci(email) { await api('esqueci', { email }); },
+    aoRecuperarSenha(fn) { if (codigoReset) fn(); },
+    async novaSenha(senha) {
+      const s = comSessao(await api('redefinir', { codigo: codigoReset, senha }));
+      history.replaceState(null, '', location.pathname);
+      return s;
+    },
+    async trocarSenha(atual, nova) { return comSessao(await api('trocar_senha', { atual, nova })); },
 
-    async pedidos(filtro) {
-      let q = sb.from('pedidos').select('*').order('criado_em', { ascending: false }).limit(150);
-      if (filtro === 'enviar') q = q.eq('status', 'pago');
-      if (filtro === 'enviado') q = q.in('status', ['enviado', 'entregue']);
-      if (filtro === 'aguardando') q = q.eq('status', 'aguardando_pagamento');
-      return ok(await q);
-    },
-    async contarParaEnviar() { const { count } = await sb.from('pedidos').select('id', { count: 'exact', head: true }).eq('status', 'pago'); return count || 0; },
-    async acao(acao, pedido_id, extra = {}) {
-      const r = await fetch('../api/painel', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await token()}` }, body: JSON.stringify({ acao, pedido_id, ...extra }) });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.erro || 'Não deu certo. Tente de novo.');
-      return d.pedido;
-    },
+    pedidos: (filtro) => api('pedidos', { filtro }),
+    async contarParaEnviar() { return (await api('contar')).n; },
+    async acao(acao, pedido_id, extra = {}) { return (await api(acao, { pedido_id, ...extra }, '../api/painel')).pedido; },
 
-    async produtos() { return ok(await sb.from('produtos').select('*').order('ordem').order('nome')); },
-    async importarFotos(produto_id) {
-      const r = await fetch('../api/importar-fotos', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await token()}` }, body: JSON.stringify({ produto_id }) });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.erro || 'Não consegui copiar as fotos.');
-      return d;
+    produtos: () => api('produtos'),
+    importarFotos: (produto_id) => api('importar', { produto_id }, '../api/importar-fotos'),
+    salvarProduto: (p) => api('salvar_produto', { produto: { ...p, slug: p.slug || slugify(p.nome) } }),
+    async excluirProduto(id) { await api('excluir_produto', { id }); },
+    async enviarFoto(arquivo) {
+      const blob = ['image/webp', 'image/jpeg'].includes(arquivo.type) && arquivo.size < 500e3 ? arquivo : await reduzirFoto(arquivo);
+      const base64 = await new Promise((ok, falha) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = falha; r.readAsDataURL(blob); });
+      return (await api('enviar_foto', { tipo: blob.type, base64 })).url;
     },
-    async salvarProduto(p) {
-      const dados = { ...p, slug: p.slug || slugify(p.nome), atualizado_em: new Date().toISOString() };
-      if (!dados.id) delete dados.id;
-      return ok(await sb.from('produtos').upsert(dados).select().single());
-    },
-    async excluirProduto(id) { ok(await sb.from('produtos').delete().eq('id', id)); },
-    async enviarFoto(arquivo, nome) {
-      const blob = arquivo.type === 'image/webp' && arquivo.size < 400e3 ? arquivo : await reduzirFoto(arquivo);
-      const caminho = `${slugify(nome)}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.webp`;
-      ok(await sb.storage.from('fotos').upload(caminho, blob, { contentType: 'image/webp', cacheControl: '31536000' }));
-      return sb.storage.from('fotos').getPublicUrl(caminho).data.publicUrl;
-    },
-    async ajustes() { return ok(await sb.from('ajustes').select('*').eq('id', 1).single()); },
-    async salvarAjustes(a) { ok(await sb.from('ajustes').update(a).eq('id', 1)); },
-    async contatos() { return ok(await sb.from('contatos_eventos').select('*').order('criado_em', { ascending: false }).limit(100)); },
-    async marcarContato(id, respondido) { ok(await sb.from('contatos_eventos').update({ respondido }).eq('id', id)); },
+    ajustes: () => api('ajustes'),
+    salvarAjustes: (ajustes) => api('salvar_ajustes', { ajustes }),
+    contatos: () => api('contatos'),
+    async marcarContato(id, respondido) { await api('marcar_contato', { id, respondido }); },
   };
 }
 
@@ -96,7 +86,7 @@ function lojaDemo(cfg) {
     async sessao() { return logado ? { user: { email: logado } } : null; },
     async entrar(email) { logado = email || 'dono@admiravel'; sessionStorage.setItem('adm_demo_login', logado); return { user: { email: logado } }; },
     async sair() { logado = null; sessionStorage.removeItem('adm_demo_login'); },
-    async esqueci() {}, aoRecuperarSenha() {}, async novaSenha() {},
+    async esqueci() {}, aoRecuperarSenha() {}, async novaSenha() {}, async trocarSenha() { return { user: { email: logado } }; },
 
     async pedidos(filtro) {
       const d = await demo.carregar();
