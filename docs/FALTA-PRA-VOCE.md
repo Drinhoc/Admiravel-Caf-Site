@@ -8,14 +8,12 @@ Tempo total do essencial: **cerca de 20 minutos**. O resto é opcional para hoje
 
 ## Essencial para o site novo estar no ar hoje
 
-### 1. Criar o repositório no GitHub · 1 min
-1. Abra github.com/new.
-2. Nome: `admiravel-site` · **Private** · não marque README, .gitignore nem licença.
-3. Clique em **Create repository** e me avise no chat. Eu subo o código na hora.
+### 1. Repositório no GitHub · feito
+O código já está em github.com/Drinhoc/Admiravel-Caf-Site (branch `main`).
 
 ### 2. Criar o projeto no Railway · 3 min
 1. Entre em railway.com com a sua conta do GitHub.
-2. **New Project → Deploy from GitHub repo → admiravel-site**. Se ele pedir, autorize o Railway a ver esse repositório.
+2. **New Project → Deploy from GitHub repo → Admiravel-Caf-Site**. Se ele pedir, autorize o Railway a ver esse repositório.
 3. Se pedir plano: o Hobby custa cerca de US$ 5/mês (o teste grátis também serve para hoje).
 
 ### 3. Adicionar o banco · 1 min
