@@ -173,9 +173,40 @@ async function carregarProdutos() {
 const embVazia = () => ({ id: 'e' + Math.random().toString(36).slice(2, 7), nome: 'Lata 250g', preco: 0, preco_promo: null, promo_ate: null, estoque_grao: 0, estoque_moido: 0, peso_g: 650 });
 let edit = null;
 
+// Tamanhos prontos: um toque adiciona a embalagem com peso para o frete e o último preço usado nesse tamanho.
+const TAMANHOS_BASE = [['Lata 250g', 650], ['Pacote 250g', 300], ['Pacote 500g', 560], ['Pacote 1kg', 1080], ['Drip 10 sachês', 200]];
+function tamanhos() {
+  const vistos = new Map(TAMANHOS_BASE.map(([n, g]) => [n, { nome: n, peso_g: g }]));
+  for (const p of produtos) for (const e of p.embalagens || []) {
+    if (!e.nome || /^\d+\s*latas?/i.test(e.nome)) continue;
+    vistos.set(e.nome, { nome: e.nome, peso_g: e.peso_g || vistos.get(e.nome)?.peso_g, preco: e.preco });
+  }
+  return [...vistos.values()];
+}
+const temTamanho = (nome) => edit.embalagens.some((e) => e.nome.trim().toLowerCase() === nome.toLowerCase());
+function htmlTamanhos() {
+  return tamanhos().map((t) => `<button type="button" class="tam" data-tam="${esc(t.nome)}" aria-pressed="${temTamanho(t.nome)}">${temTamanho(t.nome) ? '✓ ' : '+ '}${esc(t.nome)}</button>`).join('');
+}
+function alternarTamanho(nome) {
+  lerFormProduto();
+  const i = edit.embalagens.findIndex((e) => e.nome.trim().toLowerCase() === nome.toLowerCase());
+  if (i >= 0) edit.embalagens.splice(i, 1);
+  else {
+    const t = tamanhos().find((x) => x.nome === nome) || { nome };
+    const novo = { ...embVazia(), nome: t.nome, preco: t.preco || 0, peso_g: t.peso_g || 300 };
+    edit.embalagens.push(novo);
+  }
+  $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join('');
+  $('#tamanhos').innerHTML = htmlTamanhos();
+}
+function htmlEscala(k, n) {
+  const v = Number(edit.perfil?.[k]) || 0;
+  return `<div class="escala-linha"><span>${n}</span><div class="escala" data-perfil="${k}" role="group" aria-label="${n}">${[1, 2, 3, 4, 5].map((x) => `<button type="button" data-v="${x}" class="${x <= v ? 'on' : ''}" aria-pressed="${x === v}" aria-label="${n} ${x}">${x}</button>`).join('')}</div></div>`;
+}
+
 function htmlEmb(e, i) {
   return `<div class="emb" data-i="${i}">
-    <div class="topo-emb"><label>Embalagem<input data-k="nome" value="${esc(e.nome)}" placeholder="Lata 250g"></label>${edit.embalagens.length > 1 ? `<button type="button" class="bt perigo" data-rm-emb="${i}" style="min-width:0">Remover</button>` : ''}</div>
+    <div class="topo-emb"><label>Embalagem<input data-k="nome" value="${esc(e.nome)}" placeholder="Lata 250g"></label><button type="button" class="bt perigo" data-rm-emb="${i}" style="min-width:0">Remover</button></div>
     <div class="duas">
       <label>Preço<span class="moeda"><i>R$</i><input data-k="preco" inputmode="decimal" value="${e.preco ?? ''}"></span></label>
       <label>Preço promocional<span class="moeda"><i>R$</i><input data-k="preco_promo" inputmode="decimal" value="${e.preco_promo ?? ''}" placeholder="vazio = sem promoção"></span></label>
@@ -197,28 +228,36 @@ function htmlFotos() {
 
 function folhaProduto() {
   const p = edit;
-  const f = p.ficha || {}, pf = p.perfil || {};
-  const sel = (k) => `<select data-perfil="${k}"><option value="">—</option>${[1, 2, 3, 4, 5].map((v) => `<option ${Number(pf[k]) === v ? 'selected' : ''}>${v}</option>`).join('')}</select>`;
+  const f = p.ficha || {};
   return `<div class="fcab"><h2>${p.id ? esc(p.nome) : 'Novo produto'}</h2><button class="x" aria-label="Fechar">×</button></div>
   <form class="fcorpo form" id="form-produto">
     <label class="chave">À venda no site<input type="checkbox" name="ativo" ${p.ativo ? 'checked' : ''}></label>
     <div class="bloco" style="display:grid;gap:6px"><label class="chave" style="margin:0">★ Café em destaque na página inicial<input type="checkbox" name="destaque" ${p.id && String(p.id) === String(destaqueId) ? 'checked' : ''}></label>
       <small style="color:var(--muted)">Aparece logo abaixo da abertura do site, com foto grande, o selo (ex.: "3º lugar") e o botão de comprar. Só um fica em destaque por vez: ligar aqui tira o anterior.</small></div>
     <div class="bloco"><h3>Fotos</h3><div class="fotos" id="fotos">${htmlFotos()}</div><small style="color:var(--muted)">A primeira é a principal. Fotos grandes são reduzidas automaticamente.</small></div>
+    ${!p.id && produtos.length ? `<label>Começar copiando de um produto que já existe (opcional)<select id="copiar-de"><option value="">Não, começar do zero</option>${produtos.map((x) => `<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('')}</select><small>Traz tipo, tamanhos, preços, pesos e a ficha. O estoque começa em zero.</small></label>` : ''}
     <label>Nome<input name="nome" required value="${esc(p.nome)}" placeholder="Ex.: Floral e Mel"></label>
+    <label>Tipo<select name="tipo">${[['cafe', 'Café (ganha ficha, perfil e bloco próprio no site)'], ['edicao', 'Edição limitada'], ['combo', 'Combo'], ['outro', 'Outro']].map(([v, n]) => `<option value="${v}" ${p.tipo === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     <label>Frase curta<input name="frase" maxlength="90" value="${esc(p.frase)}" placeholder="Aparece no cartão do produto"></label>
     <label>Como é o sabor / descrição<textarea name="descricao" rows="4">${esc(p.descricao)}</textarea></label>
     <label>Selo (opcional)<input name="selo" maxlength="60" value="${esc(p.selo)}" placeholder="Ex.: Novo · Edição limitada"></label>
-    <div class="bloco"><h3>Preço e estoque</h3><div id="embs" style="display:grid;gap:12px">${p.embalagens.map(htmlEmb).join('')}</div>
-      <button type="button" class="bt claro" id="add-emb">+ Outra embalagem (ex.: pacote)</button></div>
-    <details class="mais bloco"><summary>Mais detalhes (ficha, perfil, cor)</summary>
-      <label>Tipo<select name="tipo">${[['cafe', 'Café (ganha um bloco próprio na página inicial)'], ['combo', 'Combo'], ['edicao', 'Edição limitada'], ['outro', 'Outro']].map(([v, n]) => `<option value="${v}" ${p.tipo === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-      <label class="chave">Tem opção de moagem (grão / moído)<input type="checkbox" name="tem_moagem" ${p.tem_moagem !== false ? 'checked' : ''}></label>
+    <div class="bloco"><h3>Tamanhos, preço e estoque</h3>
+      <small style="color:var(--muted)">Toque nos tamanhos que esse produto tem. Cada um ganha seu preço e estoque.</small>
+      <div class="tamanhos" id="tamanhos">${htmlTamanhos()}</div>
+      <div id="embs" style="display:grid;gap:12px">${p.embalagens.map(htmlEmb).join('')}</div>
+      <button type="button" class="bt claro" id="add-emb">+ Outro tamanho (escrever)</button>
+      <label class="chave">Vende em grão e moído<input type="checkbox" name="tem_moagem" ${p.tem_moagem !== false ? 'checked' : ''}></label></div>
+    <div class="bloco so-cafe" ${['cafe', 'edicao'].includes(p.tipo) ? '' : 'hidden'}><h3>O café</h3>
+      <small style="color:var(--muted)">Preencha o que souber: o site monta a ficha e as barrinhas de perfil sozinho.</small>
       <label>Notas de sabor<input name="notas" value="${esc((p.notas || []).join(', '))}" placeholder="separe por vírgula: laranja, capim-limão"></label>
       <div class="duas">
-        ${[['variedade', 'Variedade'], ['processo', 'Processo'], ['origem', 'Origem'], ['produtor', 'Produtor'], ['altitude', 'Altitude'], ['torra', 'Torra']].map(([k, n]) => `<label>${n}<input data-ficha="${k}" value="${esc(f[k] || '')}"></label>`).join('')}
+        ${[['variedade', 'Variedade'], ['processo', 'Processo'], ['origem', 'Origem'], ['produtor', 'Produtor'], ['altitude', 'Altitude'], ['torra', 'Torra']].map(([k, n]) => `<label>${n}<input data-ficha="${k}" value="${esc(f[k] || '')}" list="sug-${k}"></label>`).join('')}
       </div>
-      <div class="duas">${[['docura', 'Doçura'], ['acidez', 'Acidez'], ['corpo', 'Corpo'], ['intensidade', 'Intensidade']].map(([k, n]) => `<label>${n} (1 a 5)${sel(k)}</label>`).join('')}</div>
+      ${['variedade', 'processo', 'origem', 'produtor', 'altitude', 'torra'].map((k) => `<datalist id="sug-${k}">${[...new Set(produtos.map((x) => x.ficha?.[k]).filter(Boolean))].map((v) => `<option value="${esc(v)}">`).join('')}</datalist>`).join('')}
+      <div class="perfil-caixas"><b>Perfil</b> <small style="color:var(--muted)">toque de 1 a 5</small>
+        ${[['docura', 'Doçura'], ['acidez', 'Acidez'], ['corpo', 'Corpo'], ['intensidade', 'Intensidade']].map(([k, n]) => htmlEscala(k, n)).join('')}</div>
+    </div>
+    <details class="mais bloco"><summary>Mais detalhes (cor e ordem)</summary>
       <div class="duas"><label>Cor do bloco<input type="color" name="cor" value="${esc(p.cor || '#72765B')}" style="padding:4px;height:48px"></label>
       <label>Ordem na página<input name="ordem" inputmode="numeric" value="${esc(p.ordem ?? 0)}"></label></div>
     </details>
@@ -242,8 +281,7 @@ function lerFormProduto() {
   edit.ordem = Math.round(num(fd.get('ordem')));
   const ficha = {}; $$('[data-ficha]', form).forEach((i) => { ficha[i.dataset.ficha] = i.value.trim(); });
   edit.ficha = Object.values(ficha).some(Boolean) ? ficha : null;
-  const perfil = {}; $$('[data-perfil]', form).forEach((s) => { if (s.value) perfil[s.dataset.perfil] = Number(s.value); });
-  edit.perfil = Object.keys(perfil).length ? perfil : null;
+  // perfil: guardado em edit.perfil a cada toque nas caixinhas
   $$('.emb', form).forEach((el) => {
     const e = edit.embalagens[Number(el.dataset.i)];
     $$('[data-k]', el).forEach((inp) => {
@@ -258,6 +296,7 @@ function lerFormProduto() {
 
 function validarProduto() {
   if (!edit.nome) return 'Dê um nome ao produto.';
+  if (!edit.embalagens.length) return 'Toque em pelo menos um tamanho.';
   for (const e of edit.embalagens) {
     if (!e.nome) return 'Toda embalagem precisa de um nome.';
     if (!(e.preco > 0)) return `Coloque o preço de "${e.nome}".`;
@@ -267,8 +306,8 @@ function validarProduto() {
 }
 
 function abrirProduto(p) {
-  edit = p ? structuredClone(p) : { nome: '', frase: '', descricao: '', selo: '', tipo: 'cafe', ativo: true, tem_moagem: true, notas: [], ficha: null, perfil: null, cor: '#72765B', fotos: [], fotos_local: [], ordem: (produtos.at(-1)?.ordem || 0) + 1, embalagens: [embVazia()] };
-  edit.embalagens = edit.embalagens?.length ? edit.embalagens : [embVazia()];
+  edit = p ? structuredClone(p) : { nome: '', frase: '', descricao: '', selo: '', tipo: 'cafe', ativo: true, tem_moagem: true, notas: [], ficha: null, perfil: null, cor: '#72765B', fotos: [], fotos_local: [], ordem: (produtos.at(-1)?.ordem || 0) + 1, embalagens: [] };
+  edit.embalagens = edit.embalagens || [];
   edit._daLocal = !edit.fotos?.length;
   edit.fotos = edit.fotos?.length ? edit.fotos : [...(edit.fotos_local || [])];
   abrirFolha(folhaProduto());
@@ -279,7 +318,17 @@ async function eventosFolha(ev) {
   if (t.closest('.x')) return fecharFolha();
   const bAcao = t.closest('[data-acao]'); if (bAcao) return acaoPedido(bAcao);
   if (!edit || !t.closest('#form-produto')) return;
-  if (t.closest('#add-emb')) { lerFormProduto(); edit.embalagens.push({ ...embVazia(), nome: 'Pacote 250g', peso_g: 300 }); $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join(''); return; }
+  const tam = t.closest('[data-tam]'); if (tam) return alternarTamanho(tam.dataset.tam);
+  const caixa = t.closest('.escala button');
+  if (caixa) {
+    const k = caixa.parentElement.dataset.perfil, v = Number(caixa.dataset.v);
+    edit.perfil = { ...(edit.perfil || {}) };
+    if (Number(edit.perfil[k]) === v) delete edit.perfil[k]; else edit.perfil[k] = v;
+    if (!Object.keys(edit.perfil).length) edit.perfil = null;
+    caixa.closest('.escala-linha').outerHTML = htmlEscala(k, caixa.closest('.escala-linha').querySelector('span').textContent);
+    return;
+  }
+  if (t.closest('#add-emb')) { lerFormProduto(); edit.embalagens.push({ ...embVazia(), nome: '', peso_g: 300 }); $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join(''); $('#embs .emb:last-child [data-k=nome]').focus(); return; }
   const rmE = t.closest('[data-rm-emb]'); if (rmE) { lerFormProduto(); edit.embalagens.splice(Number(rmE.dataset.rmEmb), 1); $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join(''); return; }
   const rmF = t.closest('[data-rm-foto]'); if (rmF) { edit.fotos.splice(Number(rmF.dataset.rmFoto), 1); $('#fotos').innerHTML = htmlFotos(); return; }
   const pr = t.closest('[data-principal]'); if (pr) { const [f] = edit.fotos.splice(Number(pr.dataset.principal), 1); edit.fotos.unshift(f); $('#fotos').innerHTML = htmlFotos(); return; }
@@ -443,6 +492,15 @@ async function iniciar() {
   $('#folha').addEventListener('submit', (e) => { if (e.target.id === 'form-produto') salvarProduto(e); });
   $('#folha').addEventListener('change', (e) => {
     if (e.target.id === 'input-foto') enviarFotos(e.target);
+    if (e.target.id === 'copiar-de' && e.target.value) {
+      const base = produtos.find((x) => x.id === e.target.value); lerFormProduto();
+      Object.assign(edit, { tipo: base.tipo, tem_moagem: base.tem_moagem, cor: base.cor, ficha: base.ficha ? { ...base.ficha } : null, perfil: base.perfil ? { ...base.perfil } : null,
+        embalagens: base.embalagens.map((x) => ({ ...x, id: 'e' + Math.random().toString(36).slice(2, 7), estoque_grao: 0, estoque_moido: 0, preco_promo: null, promo_ate: null })) });
+      const nome = edit.nome; abrirFolha(folhaProduto()); $('#form-produto [name=nome]').value = nome;
+      aviso(`Copiado de ${base.nome}. Ajuste o que mudar e salve.`);
+      return;
+    }
+    if (e.target.name === 'tipo') { $('#folha .so-cafe').hidden = !['cafe', 'edicao'].includes(e.target.value); return; }
     if (e.target.name === 'tem_moagem') { lerFormProduto(); $('#embs').innerHTML = edit.embalagens.map(htmlEmb).join(''); }
   });
 

@@ -157,3 +157,14 @@ details.mais[open]{display:grid;gap:14px}
   .prodp .nm{font-size:16px}
 }
 .bt[data-armado]{background:var(--erro);color:#fff}
+
+/* tamanhos prontos e perfil em caixinhas */
+.tamanhos{display:flex;flex-wrap:wrap;gap:8px}
+.tam{font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:999px;border:1.5px solid #CFC6B8;background:#fff;color:var(--ink,#1F1B18);cursor:pointer}
+.tam[aria-pressed="true"]{background:#1F1B18;color:#F5F3EE;border-color:#1F1B18}
+.perfil-caixas{display:grid;gap:10px}
+.escala-linha{display:grid;grid-template-columns:minmax(84px,auto) 1fr;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.escala{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.escala button{font:inherit;font-size:14px;font-weight:700;height:42px;border-radius:8px;border:1.5px solid #CFC6B8;background:#fff;color:#6B635B;cursor:pointer}
+.escala button.on{background:#EAB54A;border-color:#B9862A;color:#1F1B18}
+.escala button:focus-visible,.tam:focus-visible{outline:2px solid #B9862A;outline-offset:2px}
