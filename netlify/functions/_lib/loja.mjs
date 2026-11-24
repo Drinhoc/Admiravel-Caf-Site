@@ -13,7 +13,7 @@ export const LOJA = {
     inscricao_estadual: '',   // só números · [CONFIRMAR] MEI de comércio em SP costuma ter IE
     telefone: '19982207977',
     email: 'admiravelcafe@gmail.com',
-    cep: '13480000',          // [CONFIRMAR] CEP exato da Rua Presidente Prudente, 232
+    cep: '13480021',          // R. Presidente Prudente, 232 (confirmado pelo Drinho 24/11)
     rua: 'Rua Presidente Prudente',
     numero: '232',
     complemento: '',
