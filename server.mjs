@@ -25,6 +25,9 @@ if (existsSync(join(RAIZ, '.env'))) {
 if (!process.env.SITE_URL && process.env.RAILWAY_PUBLIC_DOMAIN) process.env.SITE_URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
 if (!process.env.SITE_URL && !process.env.RAILWAY_ENVIRONMENT) process.env.SITE_URL = `http://localhost:${PORTA}`;
 
+// enquanto o site não estiver no domínio de verdade, o Google não indexa (evita duplicar o site do Wix)
+const INDEXAR = /admiravelcafe\.com\.br/.test(process.env.SITE_URL || '');
+
 const rotas = new Map();
 let faxina = null;
 for (const f of await readdir(FUNCS)) {
@@ -92,7 +95,7 @@ createServer(async (req, res) => {
         .end('<!doctype html><meta charset="utf-8"><title>Página não encontrada</title><body style="font-family:sans-serif;padding:40px"><h1>Página não encontrada</h1><p><a href="/">Voltar para a loja</a></p>');
       return;
     }
-    const cab = { ...SEGURANCA, 'content-type': TIPOS[extname(arq).toLowerCase()] || 'application/octet-stream' };
+    const cab = { ...SEGURANCA, ...(INDEXAR ? {} : { 'x-robots-tag': 'noindex, nofollow' }), 'content-type': TIPOS[extname(arq).toLowerCase()] || 'application/octet-stream' };
     if (caminho.startsWith('/painel/')) Object.assign(cab, { 'x-robots-tag': 'noindex, nofollow', 'cache-control': 'no-store' });
     else if (caminho.startsWith('/assets/fonts/')) cab['cache-control'] = 'public, max-age=31536000, immutable';
     else if (caminho.startsWith('/assets/')) cab['cache-control'] = 'public, max-age=3600';

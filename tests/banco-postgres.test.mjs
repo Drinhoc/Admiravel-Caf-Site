@@ -95,6 +95,14 @@ test('produtos, destaque, fotos e eventos pelo painel', { skip: pular }, async (
   assert.equal((await chamar('contatos', {}, passe)).d[0].respondido, true);
 });
 
+test('no Railway, sem InfinitePay ligada, ninguém paga de mentira', { skip: pular }, async () => {
+  const demoPagar = (await import('../netlify/functions/demo-pagar.mjs')).default;
+  const checkout = (await import('../netlify/functions/checkout.mjs')).default;
+  assert.equal((await demoPagar(new Request('https://loja/api/demo-pagar', { method: 'POST', body: '{"id":"x"}' }))).status, 404);
+  const r = await checkout(new Request('https://loja/api/checkout', { method: 'POST', body: '{"itens":[]}' }));
+  assert.equal(r.status, 503);
+});
+
 test('pedido: criar, travar status, histórico, estoque e fila da faxina', { skip: pular }, async () => {
   const [p] = await banco.listarProdutos();
   const emb = p.embalagens[0];

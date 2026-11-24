@@ -1,12 +1,12 @@
 // POST /api/demo-pagar {id, t} — SÓ no modo demonstração (sem meio de pagamento configurado): simula o pagamento aprovado.
 import { db } from './_lib/db.mjs';
-import { provedorPagamento } from './_lib/pagamento.mjs';
+import { provedorPagamento, demoPermitido } from './_lib/pagamento.mjs';
 import { registrarPagamento } from './_lib/fluxo.mjs';
 import { json, erro, lerJson } from './_lib/util.mjs';
 import { visaoPublica } from './pedido.mjs';
 
 export default async (req) => {
-  if (provedorPagamento()) return erro('Indisponível', 404);
+  if (provedorPagamento() || !demoPermitido()) return erro('Indisponível', 404);
   const c = await lerJson(req);
   const p = c?.id ? await db().obterPedido(c.id) : null;
   if (!p || p.token !== c.t || p.pagamento_provedor !== 'demo') return erro('Pedido não encontrado.', 404);

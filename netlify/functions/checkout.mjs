@@ -3,7 +3,7 @@ import { db } from './_lib/db.mjs';
 import { json, erro, lerJson, cpfValido, emailValido, soDigitos, limparTexto, siteUrl, chamar } from './_lib/util.mjs';
 import { montarItens, subtotalDe } from './_lib/precos.mjs';
 import { opcoesFrete } from './_lib/frete.mjs';
-import { criarCobranca, provedorPagamento } from './_lib/pagamento.mjs';
+import { criarCobranca, provedorPagamento, demoPermitido } from './_lib/pagamento.mjs';
 
 const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
 
@@ -16,6 +16,7 @@ export default async (req) => {
   const c = await lerJson(req);
   if (!c) return erro('Pedido inválido');
   if (c.site) return erro('Pedido inválido'); // campo-armadilha contra robôs
+  if (!provedorPagamento() && !demoPermitido()) return erro('A loja ainda não está recebendo pagamentos. Volte em breve ou chame a gente no WhatsApp.', 503);
 
   const cliente = {
     nome: limparTexto(c.cliente?.nome, 120), email: limparTexto(c.cliente?.email, 160).toLowerCase(),

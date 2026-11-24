@@ -11,6 +11,10 @@ export function provedorPagamento() {
   return null;
 }
 
+// Pagamento simulado: livre no computador/prévia; no Railway (com banco de verdade) só com PAGAMENTO_DEMO=sim,
+// para ninguém "pagar" de mentira no site publicado antes da InfinitePay estar ligada.
+export const demoPermitido = () => !env('DATABASE_URL') || env('PAGAMENTO_DEMO').toLowerCase() === 'sim';
+
 export async function criarCobranca(pedido, base) {
   const p = provedorPagamento();
   if (p === 'infinitepay') return ip.criarCobranca(pedido, base);
