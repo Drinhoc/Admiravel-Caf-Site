@@ -1,4 +1,4 @@
-// Página inicial: cartões "Escolha o seu café", um bloco de cor por café com compra direta, e a grade de combos.
+// Página inicial: no topo, combos (abre ao tocar) de um lado e os cafés do outro; abaixo, um bloco de cor por café com compra direta.
 import { iniciarComum, catalogo, brl, esc, foto, cores, menorPreco, esgotado, emPromo, precoEfetivo, abrirVeu, fecharTudo, $, $$ } from './loja.js';
 import { caixaCompra, ligarCaixa } from './compra.js';
 
@@ -44,36 +44,6 @@ function bloco(p) {
   </section>`;
 }
 
-// Café em destaque: o escolhido no painel (ajustes.destaque_id); sem escolha, o primeiro café premiado, ou o primeiro café.
-function escolherDestaque(produtos, ajustes) {
-  const id = ajustes?.destaque_id;
-  return (id && produtos.find((p) => String(p.id) === String(id)))
-    || produtos.find((p) => p.tipo === 'cafe' && /\d+\s*º\s*lugar/i.test(p.selo || ''))
-    || produtos.find((p) => p.tipo === 'cafe') || null;
-}
-function destaque(p) {
-  const c = cores(p.cor);
-  const m = String(p.selo || '').match(/(\d+\s*º)\s*lugar\s*(.*)$/i);
-  // com medalha, o selo mostra só o que sobra (ex.: "Novo"), para não repetir o prêmio
-  const resto = m ? String(p.selo).replace(m[0], '').replace(/^[\s·\-–|]+|[\s·\-–|]+$/g, '') : (p.selo || '');
-  const medalha = m ? `<div class="medalha" aria-hidden="true"><b>${esc(m[1].replace(/\s/g, ''))}</b><span>lugar${m[2] ? '<br>' + esc(m[2]) : ''}</span></div>` : '';
-  const dados = [['variedade', 'Variedade'], ['processo', 'Processo'], ['origem', 'Origem'], ['produtor', 'Produtor']]
-    .filter(([k]) => p.ficha?.[k]).slice(0, 3).map(([k, n]) => `<div><dt>${n}</dt><dd>${esc(p.ficha[k])}</dd></div>`).join('');
-  const destino = p.tipo === 'cafe' ? `#${esc(p.slug)}` : '#combos';
-  return `<div class="palco" style="--bg:${c.bg}">${foto(p)}${medalha}</div>
-    <div>
-      <p class="kicker">Café em destaque</p>
-      <h2>${esc(p.nome)}</h2>
-      ${resto ? `<span class="premio">${esc(resto)}</span>` : ''}
-      <p class="lead">${esc(p.descricao || p.frase)}</p>
-      ${dados ? `<dl class="dados">${dados}</dl>` : ''}
-      <div class="acoes">
-        <a class="btn mustard" href="${destino}" data-destaque="${esc(p.id)}">${esgotado(p) ? 'Ver o café' : 'Comprar'}</a>
-        <span class="preco">${esgotado(p) ? 'Esgotado no momento' : linhaPrecos(p)}</span>
-      </div>
-    </div>`;
-}
-
 function itemCombo(p) {
   const c = cores(p.cor);
   const esg = esgotado(p);
@@ -107,16 +77,25 @@ async function iniciar() {
   try { dados = await catalogo(); } catch { $('#cartoes').innerHTML = '<p class="nota">Não conseguimos carregar os cafés agora. Atualize a página ou chame no WhatsApp.</p>'; return; }
   const cafes = dados.produtos.filter((p) => p.tipo === 'cafe');
   const outros = dados.produtos.filter((p) => p.tipo !== 'cafe');
-  const dest = escolherDestaque(dados.produtos, dados.ajustes);
-  if (dest) $('#destaque-conteudo').innerHTML = destaque(dest); else $('#destaque').hidden = true;
-  $('#destaque-conteudo').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-destaque]');
-    if (b && dest.tipo !== 'cafe') { e.preventDefault(); abrirModal(dest); }
-  });
   $('#cartoes').innerHTML = cafes.map(cartao).join('');
   $('#blocos').innerHTML = cafes.map(bloco).join('');
   $('#combos-lista').innerHTML = outros.map(itemCombo).join('');
-  if (!outros.length) $('#combos').hidden = true;
+  if (!outros.length) { $('#combos').hidden = true; $('.portas').style.gridTemplateColumns = '1fr'; }
+  else {
+    const comFoto = outros.find((p) => (p.fotos?.length || p.fotos_local?.length)) || outros[0];
+    $('#combos-foto').innerHTML = foto(comFoto);
+    const disp = outros.filter((p) => !esgotado(p));
+    $('#combos-resumo').textContent = `${outros.length} ${outros.length === 1 ? 'opção' : 'opções'}${disp.length ? ` · a partir de ${brl(Math.min(...disp.map(menorPreco)))}` : ''}`;
+  }
+  const botaoCombos = $('.abre-combos');
+  const abrirCombos = (abrir) => {
+    const painel = $('#combos-painel');
+    const vai = abrir ?? painel.hidden;
+    painel.hidden = !vai; botaoCombos.setAttribute('aria-expanded', String(vai));
+    if (vai) painel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  botaoCombos.addEventListener('click', () => abrirCombos());
+  $$('a[href$="#combos"]').forEach((el) => el.addEventListener('click', () => abrirCombos(true)));
 
   for (const p of cafes) {
     const sec = document.getElementById(p.slug);
@@ -139,6 +118,7 @@ async function iniciar() {
     offers: p.embalagens.map((e) => ({ '@type': 'Offer', priceCurrency: 'BRL', price: precoEfetivo(e), name: e.nome, availability: esgotado(p) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' })),
   })));
   document.head.append(ld);
+  if (location.hash === '#combos') abrirCombos(true);
   if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 }
 iniciar();

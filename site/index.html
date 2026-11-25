@@ -27,7 +27,7 @@
     <a class="logo" href="index.html" aria-label="Admirável Café, início"><img src="assets/img/logo-escuro.png" alt="Admirável Café" width="152" height="38"></a>
     <nav aria-label="Principal">
       <a href="#cafes">Cafés</a>
-      <a href="#combos" class="hide-sm">Combos</a>
+      <a href="#combos" class="hide-sm" data-abre-combos>Combos</a>
       <a href="quem-somos.html" class="hide-sm">Quem somos</a>
       <a class="ev" href="eventos.html">Eventos</a>
       <button class="cart-btn" type="button" aria-label="Abrir carrinho">
@@ -39,76 +39,37 @@
 </header>
 
 <main>
-  <section class="hero">
+  <section class="escolha" id="cafes">
     <div class="wrap">
-      <div>
-        <p class="kicker">Cafés especiais · Limeira/SP</p>
-        <h1 class="big">Do produtor à sua xícara.</h1>
-        <p class="lead">Microlotes de pequenos produtores, latas ilustradas por artistas e um coffee bar que vai até a sua festa.</p>
-        <div class="ctas">
-          <a class="btn mustard" href="#cafes">Comprar cafés</a>
-          <a class="btn line" href="eventos.html">Café para eventos</a>
+      <p class="kicker">Cafés especiais · Limeira/SP</p>
+      <h1 class="big">Escolha o seu café</h1>
+      <div class="portas">
+        <div class="porta-combos" id="combos">
+          <p class="rotulo">Combos disponíveis</p>
+          <button type="button" class="abre-combos" aria-expanded="false" aria-controls="combos-painel">
+            <span class="ph" id="combos-foto"></span>
+            <span class="tx"><b id="combos-resumo">Combos e edições</b><span class="ver">Ver combos <i aria-hidden="true">▾</i></span></span>
+          </button>
+        </div>
+        <div class="porta-cafes">
+          <p class="rotulo">Nossos cafés</p>
+          <div class="sens" id="cartoes"><p class="nota">Carregando os cafés…</p></div>
         </div>
       </div>
-      <figure class="photo"><img src="assets/img/combo-artista.jpg" alt="Latas Edição do Artista nº 2 e Doce de Leite" width="441" height="360"></figure>
-    </div>
-  </section>
-
-  <section class="destaque" id="destaque" aria-label="Café em destaque">
-    <div class="wrap" id="destaque-conteudo"><p class="nota">Carregando o café em destaque…</p></div>
-  </section>
-
-  <section id="cafes" style="padding-top:0">
-    <div class="wrap">
-      <div class="sec-h">
-        <div><p class="kicker">Nossos sensoriais</p><h2 class="big">Escolha o seu café</h2></div>
-        <a class="btn ink" href="#combos">Combos e edições</a>
+      <div class="combos-painel" id="combos-painel" hidden>
+        <div class="more" id="combos-lista"></div>
       </div>
-      <div class="sens" id="cartoes"><p class="nota">Carregando os cafés…</p></div>
     </div>
   </section>
 
   <div id="blocos"></div>
-
-  <section id="combos">
-    <div class="wrap">
-      <div class="sec-h">
-        <div><p class="kicker">Combos e edições limitadas</p><h2 class="big">Monte o seu pedido</h2></div>
-      </div>
-      <div class="more" id="combos-lista"></div>
-    </div>
-  </section>
-
-  <section style="padding-top:0">
-    <div class="wrap">
-      <p class="kicker" style="color:var(--mustard-deep);margin-bottom:18px">Como ler o rótulo</p>
-      <div class="gloss">
-        <div><b>Variedade</b><p>A planta do café. Arara e Paraíso dão perfis bem diferentes, como uvas de vinho.</p></div>
-        <div><b>Processo</b><p>Como o grão seca. No natural ele seca dentro do fruto e fica mais doce. No fermentado, a fermentação controlada cria aromas novos.</p></div>
-        <div><b>Origem</b><p>O sítio e a família que plantaram. Altitude, clima e cuidado de cada lugar aparecem na xícara.</p></div>
-        <div><b>Sensorial</b><p>O que você sente na xícara. Não tem aroma adicionado: as notas vêm do próprio grão.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="evband">
-    <div class="wrap">
-      <div>
-        <p class="kicker">Eventos</p>
-        <h2 class="big">Café especial no seu evento</h2>
-        <p class="lead">Casamentos, empresas e feiras. Levamos barista, equipamento e os mesmos cafés das nossas latas.</p>
-        <div class="btns"><a class="btn mustard" href="eventos.html">Conhecer os eventos</a><a class="btn line" href="eventos.html#proposta">Pedir orçamento</a></div>
-      </div>
-      <div class="art" aria-hidden="true"><img src="assets/img/marca-claro.png" alt="" width="134" height="178"></div>
-    </div>
-  </section>
 </main>
 
 <footer>
   <div class="wrap">
     <div class="top">
       <div><a class="flogo" href="index.html"><img src="assets/img/logo-claro.png" alt="Admirável Café" width="176" height="44"></a><p style="margin-top:18px;max-width:32ch">Cafés especiais de pequenos produtores, de Limeira para todo o Brasil.</p></div>
-      <div><h4>Loja</h4><ul><li><a href="index.html#cafes">Nossos cafés</a></li><li><a href="index.html#combos">Combos e edições</a></li><li><a href="quem-somos.html">Quem somos</a></li><li><a href="politicas.html#entrega">Entrega e frete</a></li><li><a href="politicas.html#trocas">Trocas e devoluções</a></li></ul></div>
+      <div><h4>Loja</h4><ul><li><a href="index.html#cafes">Nossos cafés</a></li><li><a href="index.html#combos">Combos</a></li><li><a href="quem-somos.html">Quem somos</a></li><li><a href="politicas.html#entrega">Entrega e frete</a></li><li><a href="politicas.html#trocas">Trocas e devoluções</a></li></ul></div>
       <div><h4>Eventos</h4><ul><li><a href="eventos.html">Coffee bar</a></li><li><a href="eventos.html#proposta">Pedir orçamento</a></li><li><a href="https://www.instagram.com/admiravelcafe/" target="_blank" rel="noopener">Instagram</a></li></ul></div>
       <div><h4>Contato</h4><ul><li><a href="https://wa.me/5519982207977" target="_blank" rel="noopener">(19) 9 8220-7977</a></li><li><a href="mailto:admiravelcafe@gmail.com">admiravelcafe@gmail.com</a></li><li>Limeira/SP</li></ul></div>
     </div>

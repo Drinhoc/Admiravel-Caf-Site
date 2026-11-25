@@ -164,7 +164,7 @@ async function carregarProdutos() {
       <div class="ft" style="--bg:${esc(p.cor || '#72765B')}">${f ? `<img src="${esc(urlFoto(f))}" alt="" loading="lazy"${reserva ? ` data-reserva="${esc(reserva)}"` : ''}>` : `<span>${esc(p.nome)}</span>`}</div>
       <div class="tx"><span class="nm">${esc(p.nome)}</span>
       <span class="pr">${(p.embalagens || []).map((e) => `${esc(e.nome)}: <b>${brl(precoAtual(e))}</b>`).join(' · ')}</span>
-      <span>${!p.ativo ? '<span class="chip cinza">Fora do site</span>' : est <= 0 ? '<span class="chip vermelho">Esgotado</span>' : est <= 3 ? `<span class="chip ouro">Só ${est} em estoque</span>` : `<span class="chip verde">${est} em estoque</span>`} ${promo ? '<span class="chip vermelho">Promoção</span>' : ''} ${String(p.id) === String(destaqueId) ? '<span class="chip azul">★ Em destaque</span>' : ''}</span></div></button>`;
+      <span>${!p.ativo ? '<span class="chip cinza">Fora do site</span>' : est <= 0 ? '<span class="chip vermelho">Esgotado</span>' : est <= 3 ? `<span class="chip ouro">Só ${est} em estoque</span>` : `<span class="chip verde">${est} em estoque</span>`} ${promo ? '<span class="chip vermelho">Promoção</span>' : ''}</span></div></button>`;
   }).join('') || '<div class="vazio-painel">Nenhum produto ainda.</div>';
   const temWix = produtos.some((p) => (p.fotos || []).some((u) => /wixstatic\.com/.test(u)));
   $('#importar-wix').hidden = !temWix || S.demo;
@@ -232,8 +232,6 @@ function folhaProduto() {
   return `<div class="fcab"><h2>${p.id ? esc(p.nome) : 'Novo produto'}</h2><button class="x" aria-label="Fechar">×</button></div>
   <form class="fcorpo form" id="form-produto">
     <label class="chave">À venda no site<input type="checkbox" name="ativo" ${p.ativo ? 'checked' : ''}></label>
-    <div class="bloco" style="display:grid;gap:6px"><label class="chave" style="margin:0">★ Café em destaque na página inicial<input type="checkbox" name="destaque" ${p.id && String(p.id) === String(destaqueId) ? 'checked' : ''}></label>
-      <small style="color:var(--muted)">Aparece logo abaixo da abertura do site, com foto grande, o selo (ex.: "3º lugar") e o botão de comprar. Só um fica em destaque por vez: ligar aqui tira o anterior.</small></div>
     <div class="bloco"><h3>Fotos</h3><div class="fotos" id="fotos">${htmlFotos()}</div><small style="color:var(--muted)">A primeira é a principal. Fotos grandes são reduzidas automaticamente.</small></div>
     ${!p.id && produtos.length ? `<label>Começar copiando de um produto que já existe (opcional)<select id="copiar-de"><option value="">Não, começar do zero</option>${produtos.map((x) => `<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('')}</select><small>Traz tipo, tamanhos, preços, pesos e a ficha. O estoque começa em zero.</small></label>` : ''}
     <label>Nome<input name="nome" required value="${esc(p.nome)}" placeholder="Ex.: Floral e Mel"></label>
@@ -273,7 +271,7 @@ function lerFormProduto() {
   edit.descricao = String(fd.get('descricao') || '').trim();
   edit.selo = String(fd.get('selo') || '').trim();
   edit.ativo = !!fd.get('ativo');
-  edit._destaque = !!fd.get('destaque');
+  edit._destaque = String(edit.id) === String(destaqueId);
   edit.tipo = fd.get('tipo') || edit.tipo || 'cafe';
   edit.tem_moagem = !!fd.get('tem_moagem');
   edit.notas = String(fd.get('notas') || '').split(',').map((s) => s.trim()).filter(Boolean);
@@ -366,8 +364,7 @@ async function salvarProduto(ev) {
     if (!_destaque && era) await S.salvarAjustes({ destaque_id: null });
     return r;
   });
-  aviso(_destaque && !salvo?.ativo ? 'Salvo. Ele está fora do site, então o destaque só aparece quando você ligar "À venda no site".'
-    : _destaque ? 'Salvo! Agora ele é o café em destaque (pode levar até 1 minuto).' : 'Salvo! Já aparece no site (pode levar até 1 minuto).');
+  aviso(salvo?.ativo === false ? 'Salvo. Ele está fora do site até você ligar "À venda no site".' : 'Salvo! Já aparece no site (pode levar até 1 minuto).');
   fecharFolha(); carregarProdutos();
 }
 
