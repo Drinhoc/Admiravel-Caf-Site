@@ -235,3 +235,9 @@
 @media (max-width:1000px){.abre-combos .ph{height:72px;max-height:72px}}
 @media (max-width:900px){.coffee .media .tin{aspect-ratio:1/1;max-width:360px}}
 .card .foot{grid-template-columns:minmax(0,1fr)}.card .foot .comprar{display:flex;justify-self:stretch;box-sizing:border-box}
+/* combos como cartões de cor (mistura das cores dos cafés do combo) */
+.prod.cor{background:var(--bg);color:var(--fg);padding:14px 14px 18px;border:0;text-align:left;font:inherit;cursor:pointer}
+.prod.cor .ph{background:rgba(0,0,0,.08)}
+.prod.cor .d{color:inherit;opacity:.8}
+.prod.cor .buyl{background:var(--mustard);color:var(--ink)}
+.prod.cor:hover .buyl{background:#F3C762}

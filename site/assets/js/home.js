@@ -47,11 +47,24 @@ function bloco(p) {
   </section>`;
 }
 
+
+// Combos: a cor de fundo é a mistura exata (média RGB) das cores dos itens que estão no nome do combo.
+const sem = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+let TODOS = [];
+function corDe(p) {
+  if (p.tipo !== 'combo') return cores(p.cor);
+  const partes = sem(p.nome).replace(/^combo\s+/, '').split(/\s*\+\s*/).filter(Boolean);
+  const hexes = partes.map((parte) => TODOS.find((x) => x.tipo !== 'combo' && (sem(x.nome).startsWith(parte) || parte.startsWith(sem(x.nome))))?.cor).filter(Boolean);
+  if (hexes.length < 2) return cores(p.cor);
+  const rgb = [0, 2, 4].map((i) => Math.round(hexes.reduce((s, h) => s + parseInt(String(h).replace('#', '').substr(i, 2), 16), 0) / hexes.length));
+  return cores(rgb.map((v) => v.toString(16).padStart(2, '0')).join(''));
+}
+
 function itemCombo(p) {
-  const c = cores(p.cor);
+  const c = corDe(p);
   const esg = esgotado(p);
   const temPromo = p.embalagens.some(emPromo);
-  return `<button type="button" class="prod${esg ? ' esgotado' : ''}" data-abrir="${esc(p.id)}" style="--bg:${c.bg}">
+  return `<button type="button" class="prod cor${c.claro ? ' claro' : ''}${esg ? ' esgotado' : ''}" data-abrir="${esc(p.id)}" style="--bg:${c.bg};--fg:${c.fg}">
     <div class="ph">${foto(p)}</div>
     ${esg ? '<span class="esg">Esgotado</span>' : p.selo ? `<span class="selo">${esc(p.selo)}</span>` : ''}
     <span class="n">${esc(p.nome)}</span>
@@ -63,7 +76,7 @@ function itemCombo(p) {
 
 function abrirModal(p) {
   const m = $('.modal');
-  const c = cores(p.cor);
+  const c = corDe(p);
   m.innerHTML = `<div class="ft" style="--bg:${c.bg}">${foto(p)}</div>
     <div class="tx"><button class="fechar" aria-label="Fechar">×</button>
       ${p.selo ? `<span class="selo">${esc(p.selo)}</span>` : '<p class="kicker" style="color:var(--mustard-deep)">Combos e edições</p>'}
@@ -80,6 +93,7 @@ async function iniciar() {
   try { dados = await catalogo(); } catch { $('#cartoes').innerHTML = '<p class="nota">Não conseguimos carregar os cafés agora. Atualize a página ou chame no WhatsApp.</p>'; return; }
   const cafes = dados.produtos.filter((p) => p.tipo === 'cafe');
   const outros = dados.produtos.filter((p) => p.tipo !== 'cafe');
+  TODOS = dados.produtos;
   $('#cartoes').innerHTML = cafes.map(cartao).join('');
   $('#blocos').innerHTML = cafes.map(bloco).join('');
   $('#combos-lista').innerHTML = outros.map(itemCombo).join('');
