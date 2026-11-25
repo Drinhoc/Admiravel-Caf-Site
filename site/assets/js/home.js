@@ -10,13 +10,16 @@ const linhaPrecos = (p) => p.embalagens.map((e) =>
 
 function cartao(p) {
   const c = cores(p.cor);
-  const curto = p.embalagens.map((e) => `${esc(e.nome.replace(/ 250g$/i, ''))} ${brl(precoEfetivo(e))}`).join(' · ');
+  const curto = p.embalagens.map((e) => `<span>${esc(e.nome.replace(/ 250g$/i, ''))} <b>${brl(precoEfetivo(e))}</b></span>`).join('');
   return `<a class="card${c.claro ? ' claro' : ''}" href="#${esc(p.slug)}" style="--bg:${c.bg};--fg:${c.fg}">
     <p class="kicker">${esc(p.selo || 'Café especial')}</p>
     <h3>${esc(p.nome)}</h3>
     <p class="notes">${esc(p.frase)}</p>
     <div class="tin">${foto(p)}</div>
-    <div class="foot"><span>${esgotado(p) ? 'Esgotado' : curto}</span><b>Comprar ↓</b></div>
+    <div class="foot">
+      <span class="precos">${esgotado(p) ? 'Esgotado no momento' : curto}</span>
+      <span class="btn mustard comprar">${esgotado(p) ? 'Ver o café' : 'Comprar'}</span>
+    </div>
   </a>`;
 }
 
@@ -34,11 +37,11 @@ function bloco(p) {
         <h2>${esc(p.nome)}</h2>
         <p class="price">${linhaPrecos(p)}</p>
         ${p.notas?.length ? `<div class="notes">${p.notas.map((n) => `<span>${esc(n)}</span>`).join('')}</div>` : ''}
+        ${caixaCompra(p)}
         <h3>Como é o sabor</h3>
         <p class="taste">${esc(p.descricao)}</p>
         ${perfil}
         ${ficha ? `<h3>Ficha</h3><dl class="spec">${ficha}</dl>` : ''}
-        ${caixaCompra(p)}
       </div>
     </div>
   </section>`;

@@ -208,3 +208,30 @@
 .escolha .card .tin{width:min(100%,220px)}
 @media (min-width:901px) and (max-width:1000px){.escolha .sens{grid-template-columns:repeat(3,1fr)}}
 .combos-painel{margin-top:24px;padding-top:8px;border-top:2px solid var(--ink)}
+
+/* Preço e "Comprar" bem visíveis; fotos no mesmo formato (25/11) */
+.card .foot{display:grid;gap:14px;border-top:1px solid currentColor;padding-top:16px;margin-top:auto}
+.card .foot .precos{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:15px;font-weight:600;letter-spacing:.02em}
+.card .foot .precos b{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.01em;margin-left:4px}
+.card .foot .comprar{width:100%;padding:15px 20px}
+.card:hover .foot .comprar{background:#F3C762}
+.card .tin{aspect-ratio:1/1;width:min(100%,260px);overflow:hidden;margin-block:10px 16px}
+.card .tin img{width:100%;height:100%;object-fit:cover}
+.card .tin .sem-foto{width:100%;height:100%}
+.coffee .media .tin{aspect-ratio:4/5;overflow:hidden}
+.coffee .media .tin img{width:100%;height:100%;object-fit:cover}
+.coffee .buybox{margin-top:6px;margin-bottom:8px}
+.coffee .notes{margin-bottom:14px}
+.abre-combos .ver{display:inline-flex;justify-content:center;background:var(--mustard);color:var(--ink);padding:13px 16px;margin-top:4px}
+.abre-combos b{font-size:22px}
+.escolha{padding-top:clamp(24px,3vw,40px)}
+.escolha h1{font-size:clamp(40px,5vw,72px);margin-bottom:clamp(18px,2vw,28px)}
+.escolha .card{padding:22px 22px 20px}
+.escolha .card h3{font-size:clamp(40px,3.6vw,56px)}
+.escolha .card .notes{font-size:17px;min-height:0}
+.escolha .card .tin{width:min(100%,190px);margin-block:8px 14px}
+.card .foot .precos b{font-size:22px}
+.abre-combos .ph{max-height:220px;aspect-ratio:auto;height:220px}
+@media (max-width:1000px){.abre-combos .ph{height:72px;max-height:72px}}
+@media (max-width:900px){.coffee .media .tin{aspect-ratio:1/1;max-width:360px}}
+.card .foot{grid-template-columns:minmax(0,1fr)}.card .foot .comprar{display:flex;justify-self:stretch;box-sizing:border-box}
